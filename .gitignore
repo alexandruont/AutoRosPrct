@@ -4,3 +4,4 @@
 
 /.vs
 /MainProgram/obj
+/MainProgram/WebContent/node_modules
