@@ -1,5 +1,4 @@
-﻿
-namespace AutoRos
+﻿namespace MainProgram.src
 {
     class Program
     {

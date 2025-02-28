@@ -1,4 +1,5 @@
 #include "NetworkHandler.h"
+
 bool NetworkHandler::connectToServer(const std::string& ip, int port) {
 #ifdef _WIN32
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
@@ -31,22 +32,39 @@ bool NetworkHandler::connectToServer(const std::string& ip, int port) {
     return true;
 }
 
-bool NetworkHandler::sendData(const std::string& data) {
-    if (send(sock, data.c_str(), data.length(), 0) < 0) {
+bool NetworkHandler::sendData(ArrayData& data) {
+    if (send(sock, reinterpret_cast<char*>(data.data), data.size, 0) < 0) {
         std::cerr << "Send failed\n";
         return false;
     }
     return true;
 }
 
-std::string NetworkHandler::receiveData() {
-    char buffer[1024] = { 0 };
-    int bytesReceived = recv(sock, buffer, sizeof(buffer) - 1, 0);
-    if (bytesReceived <= 0) {
+ArrayData NetworkHandler::receiveData() {
+	ArrayData data;
+	data.size = availableDataSize();
+	data.data = new char[data.size];
+    if (!recv(sock, data.data, data.size, 0)) {
         std::cerr << "Receive failed or connection closed\n";
-        return "";
+        return ArrayData();
     }
-    return std::string(buffer, bytesReceived);
+    return data;
+}
+
+size_t NetworkHandler::availableDataSize() {
+#ifdef _WIN32
+    u_long bytesAvailable = 0;
+    ioctlsocket(sock, FIONREAD, &bytesAvailable);
+    return static_cast<size_t>(bytesAvailable);
+#else
+    size_t bytesAvailable = 0;
+    ioctl(sock, FIONREAD, &bytesAvailable);
+    return bytesAvailable;
+#endif // _WIN32
+}
+
+bool NetworkHandler::dataAvailable() {
+	return availableDataSize() > 0;
 }
 
 void NetworkHandler::closeConnection() {

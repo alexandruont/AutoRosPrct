@@ -1,17 +1,19 @@
 #pragma once
-#include "Framework.h"
+#include "Datatypes.h"
+
 class NetworkHandler
 {
-    int sock;
+    int sock = -1;
     struct sockaddr_in serverAddr;
 #ifdef _WIN32
     WSADATA wsa;
 #endif
 public:
-    NetworkHandler() : sock(-1) {}
     bool connectToServer(const std::string& ip, int port);
-    bool sendData(const std::string& data);
-    std::string receiveData();
+    bool sendData(ArrayData&);
+    bool dataAvailable();
+	size_t availableDataSize();
+    ArrayData receiveData();
     void closeConnection();
     ~NetworkHandler();
 };

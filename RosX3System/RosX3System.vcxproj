@@ -128,12 +128,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CommonData.cpp" />
+    <ClCompile Include="NetworkBase.cpp" />
     <ClCompile Include="NetworkHandler.cpp" />
     <ClCompile Include="RosX3System.cpp" />
+    <ClCompile Include="Syncronizer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommonData.h" />
+    <ClInclude Include="Datatypes.h" />
     <ClInclude Include="Framework.h" />
+    <ClInclude Include="NetworkBase.h" />
     <ClInclude Include="NetworkHandler.h" />
+    <ClInclude Include="Syncronizer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
