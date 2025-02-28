@@ -4,12 +4,20 @@ const { join } = require('node:path');
 const { Server } = require('socket.io');
 
 const app = express();
+const path = require('path');
 const server = createServer(app);
 const io = new Server(server);
+
+
+var publicDir = require('path').join(__dirname,'/public');
+app.use(express.static(publicDir));
 
 app.get('/', (req, res) => {
   res.sendFile(join(__dirname, 'index.html'));
 });
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 io.on('connection', (socket) => {
     socket.on('chat message', (msg) => {

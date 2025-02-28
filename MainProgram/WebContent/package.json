@@ -1,7 +1,7 @@
 {
-    "name": "socket-chat-example",
+    "name": "socketio",
     "version": "0.0.1",
-    "description": "my first socket.io app",
+    "description": "WebContent for Project",
     "type": "commonjs",
     "dependencies": {
         "express": "^4.21.2",
