@@ -14,6 +14,7 @@ public:
     bool dataAvailable();
 	size_t availableDataSize();
     ArrayData receiveData();
+	ArrayData receiveData(size_t);
     void closeConnection();
     ~NetworkHandler();
 };

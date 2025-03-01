@@ -46,9 +46,22 @@ ArrayData NetworkHandler::receiveData() {
 	data.data = new char[data.size];
     if (!recv(sock, data.data, data.size, 0)) {
         std::cerr << "Receive failed or connection closed\n";
+		delete[] data.data;
         return ArrayData();
     }
     return data;
+}
+
+ArrayData NetworkHandler::receiveData(size_t size) {
+	ArrayData data;
+	data.size = size;
+	data.data = new char[size];
+	if (!recv(sock, data.data, size, 0)) {
+		std::cerr << "Receive failed or connection closed\n";
+		delete[] data.data;
+		return ArrayData();
+	}
+	return data;
 }
 
 size_t NetworkHandler::availableDataSize() {

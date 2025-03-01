@@ -30,9 +30,6 @@
     <ClCompile Include="CommonData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Syncronizer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NetworkHandler.h">
@@ -50,7 +47,7 @@
     <ClInclude Include="Datatypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Syncronizer.h">
+    <ClInclude Include="concurrent_buffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -27,3 +27,10 @@ struct Request{
 	InfoType infoType;
 	size_t size;
 };
+
+struct Task {
+	TaskType type;
+	InfoType infoType;
+	ArrayData data;
+	void*(*callback);
+};
