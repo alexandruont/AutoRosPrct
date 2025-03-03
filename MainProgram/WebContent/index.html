@@ -9,75 +9,85 @@
 
       .container { display: flex; align-items: center; gap: 20px;}
 
-      .titlu1 {position: relative; width: 50%; height: 270px; background-image: url('http://localhost:3000/img/pozaRobo1.jpg'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); margin-top: -20px;}
+      .titlu1 {position: relative; width: 50%; height: 270px; background-image: url('/img/pozaRobo1.jpg'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); margin-top: -20px;}
 
       .camera-view { width: 50%; height: 270px; background-color: #5fd78b; display: flex; align-items: center; justify-content: center; margin-top: -20px; margin-bottom: -10px;}
 
-      .camera-view video { width: 100%; height: 100%; object-fit: cover; }
+      .camera-view img { width: 100%; height: 100%; object-fit: cover; }
       body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;}
 
-      #form { background: rgba(39, 205, 86, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      #controls { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 0; justify-items: center; align-items: center; margin-top: 20px; }
 
-      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+      #controls > button { background: #5fd78b; border: none; width: 100px; height: 100px; border-radius: 3px; outline: none; color: #fff; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; }
 
-      #input:focus { outline: none; }
+      #controls > button:hover { background: rgba(0, 26, 255, 0.48); cursor: pointer; }
 
-      #form > button { background: #5fd78b; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
-
-      #form > button:hover { background: rgba(0, 26, 255, 0.48); cursor: pointer; }
-
-      #messages { list-style-type: none;  margin: 0; padding: 0; }
-
-      #messages > li { padding: 0.5rem 1rem; }
-
-      #messages > li:nth-child(odd) { background: rgba(39, 205, 86, 0.15); }
-
-      #messages > li:nth-child(even) { background:rgba(255, 255, 255, 0.413); }
+      #forward { grid-column: 2; grid-row: 1; }
+      #backward { grid-column: 2; grid-row: 3; }
+      #left { grid-column: 1; grid-row: 2; }
+      #right { grid-column: 3; grid-row: 2; }
+      #empty { grid-column: 2; grid-row: 2; visibility: hidden; }
     </style>
   </head>
   <body>
     <div class="container">
       <h1 class="titlu1">AutoRos Camera View and Controls</h1>
       <div class="camera-view">
-        <video id="camera" autoplay></video>
+        <img id="camera" src="/img/pozaRobo1.jpg" alt="Camera Feed">
       </div>
     </div>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
+    <div id="controls">
+      <button id="forward">↑</button>
+      <button id="left">←</button>
+      <button id="empty"></button>
+      <button id="right">→</button>
+      <button id="backward">↓</button>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
+        const socket = io('http://localhost:8080'); // Use 'localhost' for local connections
 
-        const form = document.getElementById('form');
-        const input = document.getElementById('input');
-        const messages = document.getElementById('messages');
-
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (input.value) {
-            socket.emit('chat message', input.value);
-            input.value = '';
-            }
+        document.getElementById('forward').addEventListener('click', () => {
+            socket.emit('robot control', 'forward');
         });
 
-        socket.on('chat message', (msg) => {
-            const item = document.createElement('li');
-            item.textContent = msg;
-            messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+        document.getElementById('backward').addEventListener('click', () => {
+            socket.emit('robot control', 'backward');
         });
-    </script>
-    <script>
-      navigator.mediaDevices.getUserMedia({video: true})
-        .then((stream) => {
-          const video = document.getElementById('camera');
-          video.srcObject = stream;
-        })
-        .catch((err) => {
-          console.error(err);
+
+        document.getElementById('left').addEventListener('click', () => {
+            socket.emit('robot control', 'left');
         });
+
+        document.getElementById('right').addEventListener('click', () => {
+            socket.emit('robot control', 'right');
+        });
+
+        socket.on('connect', () => {
+            console.log('User connected');
+        });
+
+        // Array of image URLs
+        const images = [
+          '/img/pozaRobo1.jpg',
+          '/img/dog1.jpg',
+          '/img/dog2.jpg',
+          '/img/dog3.jpg',
+          '/img/dog4.jpg',
+          // Add more image URLs as needed
+        ];
+
+        let currentIndex = 0;
+
+        // Function to update the image
+        function updateImage() {
+          const imgElement = document.getElementById('camera');
+          imgElement.src = images[currentIndex];
+          currentIndex = (currentIndex + 1) % images.length;
+        }
+
+        // Update the image every 0.2 seconds
+        setInterval(updateImage, 200);
     </script>
   </body>
 </html>
