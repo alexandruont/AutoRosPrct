@@ -8,8 +8,7 @@ const path = require('path');
 const server = createServer(app);
 const io = new Server(server);
 
-
-var publicDir = require('path').join(__dirname,'/public');
+var publicDir = require('path').join(__dirname, '/public');
 app.use(express.static(publicDir));
 
 app.get('/', (req, res) => {
@@ -18,26 +17,19 @@ app.get('/', (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 io.on('connection', (socket) => {
-    socket.on('chat message', (msg) => {
-      io.emit('chat message', msg);
-    });
+  const clientIp = socket.handshake.address;
+  console.log(`User connected from IP: ${clientIp}`);
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
   });
 
-
-io.on('connection', (socket) => {
-    socket.on('chat message', (msg) => {
-      console.log('message: ' + msg);
-    });
-  });  
-
-io.on('connection', (socket) => {
-    console.log('a user connected');
-    socket.on('disconnect', () => {
-      console.log('user disconnected');
-    });
+  socket.on('robot control', (direction) => {
+    console.log(`User pressed ${direction}`);
   });
+});
 
-server.listen(3000, () => {console.log('server running at http://localhost:3000');});
-  
+server.listen(8080, '0.0.0.0', () => {
+  console.log('Server running at http://0.0.0.0:8080/');
+});
