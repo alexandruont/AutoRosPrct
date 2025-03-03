@@ -45,7 +45,7 @@
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io('http://localhost:8080'); // Use 'localhost' for local connections
+        const socket = io('http://192.168.80.38:8080');
 
         document.getElementById('forward').addEventListener('click', () => {
             socket.emit('robot control', 'forward');
@@ -67,26 +67,24 @@
             console.log('User connected');
         });
 
-        // Array of image URLs
+        
         const images = [
           '/img/pozaRobo1.jpg',
           '/img/dog1.jpg',
           '/img/dog2.jpg',
           '/img/dog3.jpg',
           '/img/dog4.jpg',
-          // Add more image URLs as needed
+          
         ];
 
         let currentIndex = 0;
 
-        // Function to update the image
         function updateImage() {
           const imgElement = document.getElementById('camera');
           imgElement.src = images[currentIndex];
           currentIndex = (currentIndex + 1) % images.length;
         }
 
-        // Update the image every 0.2 seconds
         setInterval(updateImage, 200);
     </script>
   </body>
