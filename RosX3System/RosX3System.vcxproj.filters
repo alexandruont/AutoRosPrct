@@ -21,33 +21,60 @@
     <ClCompile Include="RosX3System.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NetworkHandler.cpp">
+    <ClCompile Include="src\Networking\tcpClient\client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NetworkBase.cpp">
+    <ClCompile Include="src\Networking\tcpClient\common.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CommonData.cpp">
+    <ClCompile Include="src\Networking\tcpClient\pipe_ret_t.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Networking\tcpClient\tcp_client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Networking\NetworkBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CommonData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NetworkHandler.h">
+    <ClInclude Include="src\Networking\tcpClient\client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Framework.h">
+    <ClInclude Include="src\Networking\tcpClient\client_event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NetworkBase.h">
+    <ClInclude Include="src\Networking\tcpClient\client_observer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CommonData.h">
+    <ClInclude Include="src\Networking\tcpClient\common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Datatypes.h">
+    <ClInclude Include="src\Networking\tcpClient\file_descriptor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="concurrent_buffers.h">
+    <ClInclude Include="src\Networking\tcpClient\pipe_ret_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Networking\tcpClient\tcp_client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Networking\NetworkBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vendor\concurrent_buffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CommonData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Datatypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
