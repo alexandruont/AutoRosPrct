@@ -7,16 +7,26 @@
     <style>
       * { box-sizing: border-box; }
 
-      .container { display: flex; align-items: center; gap: 20px;}
-
-      .titlu1 {position: relative; width: 50%; height: 270px; background-image: url('/img/pozaRobo1.jpg'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); margin-top: -20px;}
-
-      .camera-view { width: 50%; height: 270px; background-color: #5fd78b; display: flex; align-items: center; justify-content: center; margin-top: -20px; margin-bottom: -10px;}
-
-      .camera-view img { width: 100%; height: 100%; object-fit: cover; }
       body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;}
 
-      #controls { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 0; justify-items: center; align-items: center; margin-top: 20px; }
+      .container { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+
+      .camera-view { width: 100%; height: 370px; background-color: #5fd78b; display: flex; align-items: center; justify-content: center; margin-bottom: -10px; border: lightgreen 5px solid;}
+
+      .camera-view img { width: 100%; height: 100%; object-fit: cover; }
+
+      #controls { 
+        display: grid; 
+        grid-template-columns: repeat(3, 100px); 
+        grid-template-rows: repeat(3, 100px); 
+        gap: 0; 
+        justify-items: center; 
+        align-items: center; 
+        position: fixed; 
+        bottom: 0px; 
+        left: 50%; 
+        transform: translateX(-50%); 
+      }
 
       #controls > button { background: #5fd78b; border: none; width: 100px; height: 100px; border-radius: 3px; outline: none; color: #fff; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; }
 
@@ -27,11 +37,42 @@
       #left { grid-column: 1; grid-row: 2; }
       #right { grid-column: 3; grid-row: 2; }
       #empty { grid-column: 2; grid-row: 2; visibility: hidden; }
+
+      .notification {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px;
+        border-radius: 5px;
+        display: none;
+        max-width: 90%;
+        text-align: center;
+      }
+
+      .toggle-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #5fd78b;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        font-size: 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .toggle-button:hover {
+        background-color: rgba(0, 26, 255, 0.48);
+      }
+
     </style>
   </head>
   <body>
     <div class="container">
-      <h1 class="titlu1">AutoRos Camera View and Controls</h1>
       <div class="camera-view">
         <img id="camera" src="/img/pozaRobo1.jpg" alt="Camera Feed">
       </div>
@@ -43,9 +84,15 @@
       <button id="right">→</button>
       <button id="backward">↓</button>
     </div>
+    <div class="notification" id="notification">
+      <h1>AutoRos Camera View and Controls</h1>
+      <p>This project allows you to control a robot using the buttons below. The camera feed is displayed above.</p>
+      <button onclick="toggleNotification()">Close</button>
+    </div>
+    <button class="toggle-button" onclick="toggleNotification()">Info</button>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io('http://192.168.80.39:8080'); // Updated with your IP address
+        const socket = io('http://192.168.80.39:8080');
 
         document.getElementById('forward').addEventListener('click', () => {
             socket.emit('robot control', 'forward');
@@ -87,6 +134,19 @@
 
         // Update the image every 0.2 seconds
         setInterval(updateImage, 200);
+
+        function toggleNotification() {
+          const notification = document.getElementById('notification');
+          if (notification.style.display === 'none' || notification.style.display === '') {
+            notification.style.display = 'block';
+          } else {
+            notification.style.display = 'none';
+          }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+          document.getElementById('notification').style.display = 'block';
+        });
     </script>
   </body>
 </html>

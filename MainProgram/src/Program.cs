@@ -1,14 +1,14 @@
-﻿using TcpServerExample;
+﻿using TCPIPServer;
 
 namespace MainProgram.src
 {
     class Program
     {
-        public static void main(string[] args)
+        public static void Main(string[] args)
         {
-            Console.WriteLine("Hello World");
-            RobotsHandler Server = new RobotsHandler();
-            Server.Init();
+            Console.WriteLine("Starting server...");
+            RobotsHandler Server = new RobotsHandler(port: 8000);
+            Server.StartAsync().Wait();
         }
     }
 }
