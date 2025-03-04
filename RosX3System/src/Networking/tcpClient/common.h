@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COMMON_H
+#define COMMON_H
 
 #include <cstdio>
 
@@ -14,6 +15,4 @@ namespace fd_wait {
     Result waitFor(const FileDescriptor &fileDescriptor, uint32_t timeoutSeconds = 1);
 };
 
-
-
-
+#endif // !COMMON_H

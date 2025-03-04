@@ -1,4 +1,6 @@
-#pragma once
+#ifndef DATATYPES_H
+#define DATATYPES_H
+
 #include "Framework.h"
 
 enum class TaskType {
@@ -34,3 +36,4 @@ struct Task {
 	ArrayData data;
 	void*(*callback);
 };
+#endif // !FRAMEWORK_H

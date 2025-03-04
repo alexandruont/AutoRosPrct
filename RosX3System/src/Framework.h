@@ -1,4 +1,6 @@
-#pragma once
+#ifndef FRAMEWORK_H
+#define FRAMEWORK_H
+
 #include <iostream>
 #include <cstring>
 #include <thread>
@@ -21,3 +23,5 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #endif
+
+#endif // !FRAMEWORK_H
