@@ -2,11 +2,19 @@ const express = require('express');
 const { createServer } = require('node:http');
 const { join } = require('node:path');
 const { Server } = require('socket.io');
+const cors = require('cors'); // Import the cors package
 
 const app = express();
 const path = require('path');
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: '*', // Allow all origins
+    methods: ['GET', 'POST']
+  }
+});
+
+app.use(cors()); // Use the cors middleware
 
 var publicDir = require('path').join(__dirname, '/public');
 app.use(express.static(publicDir));
