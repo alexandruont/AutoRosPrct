@@ -83,7 +83,7 @@ pipe_ret_t TcpClient::sendMsg(const char * msg, size_t size) {
     }
     if (numBytesSent < size) { // not all bytes were sent
         char errorMsg[100];
-        sprintf_s(errorMsg, "Only %lu bytes out of %lu was sent to client", numBytesSent, size);
+        sprintf(errorMsg, "Only %lu bytes out of %lu was sent to client", numBytesSent, size);
         return pipe_ret_t::failure(errorMsg);
     }
     return pipe_ret_t::success();

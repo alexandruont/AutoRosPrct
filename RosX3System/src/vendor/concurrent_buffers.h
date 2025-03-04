@@ -11,10 +11,12 @@ template<typename T, size_t S>
 class SPSCBuffer {
 protected:
 	T buffer[S];
-	std::atomic<size_t> head = 0;
-	std::atomic<size_t> tail = 0;
+	std::atomic<size_t> head;
+	std::atomic<size_t> tail;
 public:
-	SPSCBuffer() = default;
+	SPSCBuffer() {head.store(0); tail.store(0);};
+	SPSCBuffer(const SPSCBuffer&) = delete;
+    SPSCBuffer& operator=(const SPSCBuffer&) = delete;
 
 	// This function will also get the item you poped
 	bool pop(T& item) {

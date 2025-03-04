@@ -3,20 +3,23 @@
 
 #include "Framework.h"
 
-enum class TaskType {
-	GET,
-	UPDATE,
-	COMMAND,
-	CLOSE,
-	DEBUG_LOG
+enum TaskType {
+	GET = 0,
+	POST = 1,
+	COMMAND = 2,
+	CLOSE = 3,
+	DEBUG_LOG = 4,
+	NULL_TASK = 5
 };
 
-enum class InfoType {
-	LIDAR,
-	CAMERA,
-	LOCAL_MAP,
-	ARM_STATE,
-	DATA_STREAM
+enum InfoType {
+	LIDAR = 0,
+	CAMERA_1 = 1,
+	CAMERA_2 = 2,
+	LOCAL_MAP = 3,
+	ARM_STATE = 4,
+	DATA_STREAM = 5,
+	NULL_INFO = 6
 };
 
 struct ArrayData {
