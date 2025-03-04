@@ -3,6 +3,7 @@ const { createServer } = require('node:http');
 const { join } = require('node:path');
 const { Server } = require('socket.io');
 const cors = require('cors'); // Import the cors package
+const net = require('net'); // Import the net package
 
 const app = express();
 const path = require('path');
@@ -25,6 +26,20 @@ app.get('/', (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+// TCP client to connect to the TCP server
+const tcpClient = new net.Socket();
+tcpClient.connect(8000, '192.168.80.40', () => {
+  console.log('Connected to TCP server');
+});
+
+tcpClient.on('data', (data) => {
+  console.log('Received from TCP server:', data.toString());
+});
+
+tcpClient.on('close', () => {
+  console.log('Connection to TCP server closed');
+});
+
 io.on('connection', (socket) => {
   const clientIp = socket.handshake.address;
   console.log(`User connected from IP: ${clientIp}`);
@@ -35,6 +50,8 @@ io.on('connection', (socket) => {
 
   socket.on('robot control', (direction) => {
     console.log(`User pressed ${direction}`);
+    // Forward the command to the TCP server
+    tcpClient.write(direction);
   });
 });
 
