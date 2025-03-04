@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TCP_CLIENT_H
+#define TCP_CLIENT_H
 
 #ifdef _WIN32
 
@@ -68,3 +69,4 @@ public:
     bool isConnected() const { return _isConnected; }
     pipe_ret_t close();
 };
+#endif // !TCP_CLIENT_H

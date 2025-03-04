@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CLIENT_OBSERVER_H
+#define CLIENT_OBSERVER_H
 
 #include <string>
 #include <functional>
@@ -10,4 +11,4 @@ struct client_observer_t {
     std::function<void(const pipe_ret_t & ret)> disconnectionHandler = nullptr;
 };
 
-
+#endif // !CLIENT_OBSERVER_H

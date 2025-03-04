@@ -1,6 +1,14 @@
-#pragma once
+#ifndef NETWORKBASE_H
+#define NETWORKBASE_H
 #include "Datatypes.h"
 #include "tcpClient/tcp_client.h"
+#include "vendor/concurrent_buffers.h"
 
-void onIncomingMsg(const char* msg, size_t size);
-void onDisconnection(const pipe_ret_t& ret);
+void initNetwork();
+void closeNetwork();
+
+void sendTextMessage(std::string&);
+void sendTask(const Task& request);
+
+extern SPSCBuffer<Task, 50> taskBuffer;
+#endif // !NETWORKBASE_H

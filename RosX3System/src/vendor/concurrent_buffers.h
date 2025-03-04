@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CONCURRENT_BUFFERS_H
+#define CONCURRENT_BUFFERS_H
+
 #include <cstdlib>
 #include <iostream>
 #include <mutex>
@@ -130,3 +132,4 @@ public:
 	T* getBuffer() { return buffer; }
 };
 
+#endif // !CONCURRENT_BUFFERS_H

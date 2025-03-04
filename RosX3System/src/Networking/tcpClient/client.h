@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CLIENT_H
+#define CLIENT_H
 
 #include <string>
 #include <thread>
@@ -52,4 +53,4 @@ public:
 
 };
 
-
+#endif // !CLIENT_H

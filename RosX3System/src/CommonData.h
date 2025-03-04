@@ -1,4 +1,6 @@
-#pragma once
+#ifndef COMMONDATA_H
+#define COMMONDATA_H
+
 #include "Framework.h"
 
 std::string getLocalIP();
@@ -14,3 +16,5 @@ bool getIsServer();
 void setServerStatus(bool isServer);
 bool programClose();
 void setProgramClose(bool close);
+
+#endif // !COMMONDATA_H

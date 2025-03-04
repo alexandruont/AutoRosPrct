@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PIPE_RET_T_H
+#define PIPE_RET_T_H
 
 class pipe_ret_t {
 
@@ -22,3 +23,4 @@ public:
     static pipe_ret_t success(const std::string &msg = "");
 };
 
+#endif // !PIPE_RET_T_H
