@@ -102,9 +102,10 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -117,8 +118,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_WINSOCK_DEPRECATED_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,18 +130,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CommonData.cpp" />
-    <ClCompile Include="NetworkBase.cpp" />
-    <ClCompile Include="NetworkHandler.cpp" />
     <ClCompile Include="RosX3System.cpp" />
+    <ClCompile Include="src\CommonData.cpp" />
+    <ClCompile Include="src\Networking\NetworkBase.cpp" />
+    <ClCompile Include="src\Networking\tcpClient\client.cpp" />
+    <ClCompile Include="src\Networking\tcpClient\common.cpp" />
+    <ClCompile Include="src\Networking\tcpClient\pipe_ret_t.cpp" />
+    <ClCompile Include="src\Networking\tcpClient\tcp_client.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CommonData.h" />
-    <ClInclude Include="concurrent_buffers.h" />
-    <ClInclude Include="Datatypes.h" />
-    <ClInclude Include="Framework.h" />
-    <ClInclude Include="NetworkBase.h" />
-    <ClInclude Include="NetworkHandler.h" />
+    <ClInclude Include="src\CommonData.h" />
+    <ClInclude Include="src\Datatypes.h" />
+    <ClInclude Include="src\Framework.h" />
+    <ClInclude Include="src\Networking\NetworkBase.h" />
+    <ClInclude Include="src\Networking\tcpClient\client.h" />
+    <ClInclude Include="src\Networking\tcpClient\client_event.h" />
+    <ClInclude Include="src\Networking\tcpClient\client_observer.h" />
+    <ClInclude Include="src\Networking\tcpClient\common.h" />
+    <ClInclude Include="src\Networking\tcpClient\file_descriptor.h" />
+    <ClInclude Include="src\Networking\tcpClient\pipe_ret_t.h" />
+    <ClInclude Include="src\Networking\tcpClient\tcp_client.h" />
+    <ClInclude Include="src\vendor\concurrent_buffers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

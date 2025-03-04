@@ -2,7 +2,7 @@
 
 static std::string localIP;
 static std::string serversIP;
-static int port;
+static int port = 8000;
 
 static bool isServer = false;
 static bool closeProgram = false;
