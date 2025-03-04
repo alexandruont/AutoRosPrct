@@ -1,120 +1,149 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 
-namespace TcpServerExample
+namespace TCPIPServer
 {
-    class RobotsHandler
+    public class RobotsHandler 
     {
-        // Folosim "ConcurrentDictionary" pentru a gestiona conexiunea, si folosim valoarea "TcpClient"
-        static ConcurrentDictionary<string, TcpClient> connectedRobots = new ConcurrentDictionary<string, TcpClient>();
+        private TcpListener _listener;
 
-        public void Init()
+        public RobotsHandler(int port)
         {
-            int port = 8000; // Portul pe care serverul va asculta conexiunile
-            TcpListener server = new TcpListener(IPAddress.Any, port);
-            server.Start();
-            Console.WriteLine($"Serverul a pornit pe portul {port}.");
+            _listener = new TcpListener(IPAddress.Any, port);
+        }
 
-            // Bucla principală: acceptăm clienți pe măsură ce se conectează
+        public async Task StartAsync() // Start server si listen pentru conexiuni
+        {
+            _listener.Start();
+            Console.WriteLine("Server started. Waiting for connections...");
+
             while (true)
             {
-                TcpClient client = server.AcceptTcpClient();
-                // Fiecare client este gestionat într-un thread separat
-                Thread clientThread = new Thread(() => HandleClient(client));
-                clientThread.Start();
+                var client = await _listener.AcceptTcpClientAsync(); // Asteapta conexiuni
+                Console.WriteLine("Client connected.");
+                _ = Task.Run(() => ProcessClientAsync(client)); // Proceseaza clientul in mod asincron
             }
         }
 
-        // Funcția de gestionare a fiecărui client
-        static void HandleClient(TcpClient client)
+        private async Task ProcessClientAsync(TcpClient client)
         {
-            string clientEndPoint = client.Client.RemoteEndPoint.ToString();
-            Console.WriteLine($"Client conectat: {clientEndPoint}");
-
             try
             {
-                NetworkStream stream = client.GetStream();
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                // Citim datele primite de la client
-                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) != 0)
+                using (client)
                 {
-                    // Convertim datele din bytes în string
-                    string message = Encoding.ASCII.GetString(buffer, 0, bytesRead).Trim();
-                    Console.WriteLine($"Mesaj primit de la {clientEndPoint}: {message}");
+                    var stream = client.GetStream();
 
-                    // Exemplu de protocol: se așteaptă comenzi de forma:
-                    // "CONNECT_ROBOT numeSauIp" sau "DISCONNECT_ROBOT numeSauIp"
-                    string[] parts = message.Split(' ');
-                    if (parts.Length == 2)
+                    while (true)
                     {
-                        string command = parts[0].ToUpper();
-                        string robotIdentifier = parts[1];
+                        // Citeste header-ul
+                        var headerBuffer = new byte[12]; // Presupun : Type (4 bytes), Info (4 bytes), Size (4 bytes)
+                        int headerBytesRead = await stream.ReadAsync(headerBuffer, 0, headerBuffer.Length);
+                        if (headerBytesRead == 0) break; // Client disconnected
 
-                        if (command == "CONNECT_ROBOT")
+                        int type = BitConverter.ToInt32(headerBuffer, 0);
+                        int info = BitConverter.ToInt32(headerBuffer, 4);
+                        int size = BitConverter.ToInt32(headerBuffer, 8);
+
+                        Console.WriteLine($"Received header - Type: {type}, Info: {info}, Size: {size}");
+
+                        // Proceseaaza request-ul in functie de tip si info
+                        switch (type)
                         {
-                            ConnectRobot(robotIdentifier, client);
+                            case 1: // Get image info
+                                if (info == 0 && size == 0)
+                                {
+                                    // Request pentru info imagine
+                                    var imageInfo = "Image info: [data]";
+                                    var response = Encoding.UTF8.GetBytes(imageInfo);
+                                    await stream.WriteAsync(response, 0, response.Length); 
+                                    Console.WriteLine("Sent image info."); // Trimite raspuns
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Invalid request for image info.");
+                                }
+                                break;
+
+                            case 2: // Post image
+                                if (info == 1 && size > 0)
+                                {
+                                    // Request pentru upload imagine
+                                    var dataBuffer = new byte[1024];
+                                    int totalBytesRead = 0;
+                                    using (var fileStream = new FileStream("uploaded_image.jpg", FileMode.Create, FileAccess.Write))
+                                    {
+                                        while (totalBytesRead < size)
+                                        {
+                                            int bytesToRead = Math.Min(dataBuffer.Length, size - totalBytesRead);
+                                            int dataBytesRead = await stream.ReadAsync(dataBuffer, 0, bytesToRead);
+                                            if (dataBytesRead == 0) break; // Client disconnected
+
+                                            totalBytesRead += dataBytesRead;
+                                            await fileStream.WriteAsync(dataBuffer, 0, dataBytesRead);
+                                        }
+                                    }
+
+                                    Console.WriteLine("Image uploaded successfully.");
+                                    var response = Encoding.UTF8.GetBytes("Image uploaded successfully");
+                                    await stream.WriteAsync(response, 0, response.Length); // Trimite raspuns
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Invalid request for posting image.");
+                                }
+                                break;
+
+                            default:
+                                Console.WriteLine("Unknown request type.");
+                                break;
                         }
-                        else if (command == "DISCONNECT_ROBOT")
+
+                        // Daca exista un body citeste data in chunks
+                        if (size > 0 && type != 2)
                         {
-                            DisconnectRobot(robotIdentifier);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Comandă necunoscută.");
+                            var dataBuffer = new byte[1024];
+                            int totalBytesRead = 0;
+                            var messageBuilder = new StringBuilder();
+
+                            while (totalBytesRead < size)
+                            {
+                                int bytesToRead = Math.Min(dataBuffer.Length, size - totalBytesRead);
+                                int dataBytesRead = await stream.ReadAsync(dataBuffer, 0, bytesToRead);
+                                if (dataBytesRead == 0) break; // Client disconnected
+
+                                totalBytesRead += dataBytesRead;
+                                messageBuilder.Append(Encoding.UTF8.GetString(dataBuffer, 0, dataBytesRead));
+                            }
+
+                            var message = messageBuilder.ToString();
+                            Console.WriteLine($"Received data: {message}");
+
+                            // Trimite raspuns
+                            var response = Encoding.UTF8.GetBytes("Message received");
+                            await stream.WriteAsync(response, 0, response.Length);
                         }
                     }
-                    else
-                    {
-                        Console.WriteLine("Formatul comenzii nu este corect.");
-                    }
-
-                    // Exemplu de răspuns către client
-                    byte[] response = Encoding.ASCII.GetBytes("Comanda a fost procesată.\n");
-                    stream.Write(response, 0, response.Length);
                 }
+            }
+            catch (SocketException ex)
+            {
+                Console.WriteLine($"Socket error: {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"IO error: {ex.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Eroare la clientul {clientEndPoint}: {ex.Message}");
+                Console.WriteLine($"Unexpected error: {ex.Message}");
             }
             finally
             {
-                // Închidem conexiunea clientului
-                client.Close();
-                Console.WriteLine($"Conexiunea cu {clientEndPoint} a fost închisă.");
-            }
-        }
-
-        // Funcția de conectare a unui robot
-        static void ConnectRobot(string identifier, TcpClient client)
-        {
-            if (connectedRobots.TryAdd(identifier, client))
-            {
-                Console.WriteLine($"Robot conectat: {identifier}");
-            }
-            else
-            {
-                Console.WriteLine($"Robotul {identifier} este deja conectat.");
-            }
-        }
-
-        // Funcția de deconectare a unui robot
-        static void DisconnectRobot(string identifier)
-        {
-            if (connectedRobots.TryRemove(identifier, out TcpClient removedClient))
-            {
-                Console.WriteLine($"Robot deconectat: {identifier}");
-                // Închidem conexiunea asociată robotului
-                removedClient.Close();
-            }
-            else
-            {
-                Console.WriteLine($"Nu s-a găsit robotul {identifier} pentru deconectare.");
+                Console.WriteLine("Client disconnected.");
             }
         }
     }
