@@ -29,7 +29,7 @@ namespace TCPIPServer
                 var client = await _listener.AcceptTcpClientAsync(); // Asteapta conexiuni
                 Console.WriteLine("Client connected.");
                 string ipAddress = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
-                _robotControllers[ipAddress] = new RobotController(client);
+                _robotControllers[ipAddress] = new RobotController(client, ipAddress);
             }
         }
     }

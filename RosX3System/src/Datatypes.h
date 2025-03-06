@@ -26,12 +26,13 @@ struct ArrayData {
 	char* data = nullptr;
 	size_t size = 0;
 };
-
+#pragma pack(push, 1)
 struct Request{
 	TaskType type;
 	InfoType infoType;
 	size_t size;
 };
+#pragma pack(pop)
 
 struct Task {
 	TaskType type;
