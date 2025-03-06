@@ -263,6 +263,30 @@
             socket.emit('robot control', 'rotate-right');
         });
 
+        document.getElementById('slider1').addEventListener('input', () => {
+            socket.emit('arm control', { joint: 1, angle: document.getElementById('slider1').value });
+        });
+
+        document.getElementById('slider2').addEventListener('input', () => {
+            socket.emit('arm control', { joint: 2, angle: document.getElementById('slider2').value });
+        });
+
+        document.getElementById('slider3').addEventListener('input', () => {
+            socket.emit('arm control', { joint: 3, angle: document.getElementById('slider3').value });
+        });
+
+        document.getElementById('slider4').addEventListener('input', () => {
+            socket.emit('arm control', { joint: 4, angle: document.getElementById('slider4').value });
+        });
+
+        document.getElementById('slider5').addEventListener('input', () => {
+            socket.emit('arm control', { joint: 5, angle: document.getElementById('slider5').value });
+        });
+
+        document.getElementById('slider6').addEventListener('input', () => {
+            socket.emit('arm control', { joint: 6, angle: document.getElementById('slider6').value });
+        });
+
         socket.on('connect', () => {
             console.log('User connected');
         });

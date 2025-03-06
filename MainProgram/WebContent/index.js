@@ -54,8 +54,12 @@ io.on('connection', (socket) => {
 
   socket.on('robot control', (direction) => {
     console.log(`User pressed ${direction}`);
-    // Forward the command to the TCP server
     tcpClient.write(direction);
+  });
+
+  socket.on('arm control', (data) => {
+    console.log(`Arm control command received: Joint ${data.joint}, Angle ${data.angle}`);
+    tcpClient.write(`arm ${data.joint} ${data.angle}`);
   });
 });
 

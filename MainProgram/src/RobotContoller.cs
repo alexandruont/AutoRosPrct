@@ -14,7 +14,7 @@ namespace MainProgram.src
         private bool _running = true;
 
         private int _cameraCount = 0;
-        private int _armJointsCount = 0;
+        private int _armJointsCount = 6;
         private List<CameraImage> _cameraImages = new List<CameraImage>();
 
         public RobotController(TcpClient mClient) {
@@ -50,12 +50,11 @@ namespace MainProgram.src
             }
             _tcpClient.Close();
         }
-        // This would be helpfull if we have to update something from the robot
-        // Now it doesnt have any use
-        private void handleGetRequest(Header request){
 
+        private void handleGetRequest(Header request){
+            // Implementation for GET request
         }
-        // This function is mainly made for handling post of images and lidar data
+
         private void handlePostRequest(Header request){
             switch (request.infoType) {
                 case InfoType.Camera:
@@ -65,22 +64,28 @@ namespace MainProgram.src
                     _stream.Read(_cameraImages[index].imageData, 0, _cameraImages[index].width * _cameraImages[index].height);
                     break;
                 case InfoType.Arm:
+                    // Handle arm control
+                    byte[] jointBuffer = new byte[Marshal.SizeOf(typeof(int)) * _armJointsCount];
+                    _stream.Read(jointBuffer, 0, jointBuffer.Length);
+                    int[] jointAngles = new int[_armJointsCount];
+                    for (int i = 0; i < _armJointsCount; i++) {
+                        jointAngles[i] = BitConverter.ToInt32(jointBuffer, i * Marshal.SizeOf(typeof(int)));
+                    }
+                    ControlArm(jointAngles);
                     break;
                 case InfoType.None:
                     Console.WriteLine("You can't POST nothing to the server");
                     break;
                 default:
-                    Console.WriteLine("Unkown Info type for POST request");
+                    Console.WriteLine("Unknown Info type for POST request");
                     break;
             }
         }
-        // This function is used for different variables that needs to be updated
-        // This would likely not be used cause we would not have something like this in plan
-        private void handleSetRequest(Header request){
 
+        private void handleSetRequest(Header request){
+            // Implementation for SET request
         }
-        // This function is the most important cause this will let us prepare buffer for handling
-        // requests informations in a fast and efficient way
+
         private void handleSpecsRequest(Header request){
             byte[] buffer = new byte[sizeof(int) * 2];
             _stream.Read(buffer, 0, sizeof(int));
@@ -96,6 +101,12 @@ namespace MainProgram.src
             }
             _stream.Read(buffer, 0, sizeof(int));
             _armJointsCount = BitConverter.ToInt32(buffer, 0);
+        }
+
+        private void ControlArm(int[] jointAngles) {
+            for (int i = 0; i < _armJointsCount; i++) {
+                Console.WriteLine($"Joint {i + 1}: {jointAngles[i]} degrees");
+            }
         }
 
         public static T ByteArrayToStruct<T>(byte[] bytes) where T : struct
