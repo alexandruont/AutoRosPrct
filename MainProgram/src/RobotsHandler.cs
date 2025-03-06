@@ -32,5 +32,11 @@ namespace TCPIPServer
                 _robotControllers[ipAddress] = new RobotController(client);
             }
         }
+
+        private void Stop()
+        {
+            _listener.Stop();
+            _robotControllers.Clear();
+        }
     }
 }
