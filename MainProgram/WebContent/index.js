@@ -28,7 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // TCP client to connect to the TCP server
 const tcpClient = new net.Socket();
-tcpClient.connect(8000, '192.168.80.40', () => {
+tcpClient.connect(8000, '192.168.80.68', () => {
   console.log('Connected to TCP server');
 });
 
@@ -38,6 +38,10 @@ tcpClient.on('data', (data) => {
 
 tcpClient.on('close', () => {
   console.log('Connection to TCP server closed');
+});
+
+tcpClient.on('error', (err) => {
+  console.error('TCP client error:', err);
 });
 
 io.on('connection', (socket) => {
