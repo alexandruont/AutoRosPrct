@@ -13,7 +13,7 @@
 
 #include <sys/socket.h>
 #include <unistd.h>
-#define CLOSE_SOCKET(s) close(s)
+#define CLOSE_SOCKET(s) ::close(s)
 #endif // _WIN32
 
 
@@ -111,7 +111,7 @@ void Client::terminateReceiveThread() {
 void Client::close() {
     terminateReceiveThread();
 
-    const bool closeFailed = (CLOSE_SOCKET(_sockfd.get()) == -1);
+    const bool closeFailed = (::close(_sockfd.get()) == -1);
     if (closeFailed) {
         throw std::runtime_error(strerror(errno));
     }
