@@ -1,4 +1,5 @@
 ﻿using DataTypes;
+using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -14,7 +15,7 @@ namespace MainProgram.src
 
         private int _cameraCount = 0;
         private int _armJointsCount = 0;
-        private List<Vector2> _cameraSizes = new List<Vector2>();
+        private List<CameraImage> _cameraImages = new List<CameraImage>();
 
         public RobotController(TcpClient mClient) {
             _tcpClient = mClient;
@@ -56,7 +57,22 @@ namespace MainProgram.src
         }
         // This function is mainly made for handling post of images and lidar data
         private void handlePostRequest(Header request){
-
+            switch (request.infoType) {
+                case InfoType.Camera:
+                    byte[] buffer = new byte[Marshal.SizeOf(typeof(int))];
+                    _stream.Read(buffer);
+                    int index = BitConverter.ToInt32(buffer, 0);
+                    _stream.Read(_cameraImages[index].imageData, 0, _cameraImages[index].width * _cameraImages[index].height);
+                    break;
+                case InfoType.Arm:
+                    break;
+                case InfoType.None:
+                    Console.WriteLine("You can't POST nothing to the server");
+                    break;
+                default:
+                    Console.WriteLine("Unkown Info type for POST request");
+                    break;
+            }
         }
         // This function is used for different variables that needs to be updated
         // This would likely not be used cause we would not have something like this in plan
@@ -72,10 +88,11 @@ namespace MainProgram.src
             for (int i = 0; i < _cameraCount; i++)
             {
                 _stream.Read(buffer, 0, sizeof(int) * 2);
-                Vector2 vector2;
-                vector2.X = BitConverter.ToSingle(buffer, 0);
-                vector2.Y = BitConverter.ToSingle(buffer, 1);
-                _cameraSizes.Add(vector2);
+                CameraImage cameraImage;
+                cameraImage.width = BitConverter.ToInt32(buffer, 0);
+                cameraImage.height = BitConverter.ToInt32(buffer, 1);
+                cameraImage.imageData = new byte[cameraImage.width * cameraImage.height];
+                _cameraImages.Add(cameraImage);
             }
             _stream.Read(buffer, 0, sizeof(int));
             _armJointsCount = BitConverter.ToInt32(buffer, 0);

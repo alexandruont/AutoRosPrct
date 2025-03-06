@@ -6,11 +6,11 @@ namespace DataTypes
 
     enum ReqType
     {
-        Get, // Get any kind of information
-        Post, // Post some information. Used for file like data. Mainly used by the robot
+        Get = 0, // Get any kind of information
+        Post = 1, // Post some information. Used for file like data. Mainly used by the robot
 
-        Set, // Set is for updating the arm position and robot speed
-        Specs // Sends a request for robot specifications(like number of cameras)
+        Set = 2, // Set is for updating the arm position and robot speed
+        Specs = 3 // Sends a request for robot specifications(like number of cameras)
     }
 
     enum InfoType
@@ -19,7 +19,7 @@ namespace DataTypes
         Camera = 1,
         Arm = 2,
         Speed = 3,
-        ImageSize
+        ImageSize = 4
     }
 
     struct Header
@@ -30,6 +30,25 @@ namespace DataTypes
 
         public void print(){
             Console.WriteLine($"Request Info: \n\tRequest Type: {reqType}\n\tInfo Type: {infoType}\n\tSize: {size}");
+        }
+    }
+
+    struct CameraImage
+    {
+        public byte[] imageData;
+        public int width;
+        public int height;
+
+        public CameraImage(byte[] imageData, int width, int height)
+        {
+            this.imageData = imageData;
+            this.width = width;
+            this.height = height;
+        }
+
+        public void print()
+        {
+            Console.WriteLine($"Image Info: \n\tWidth: {width}\n\tHeight: {height}\n\tData Length: {imageData.Length}");
         }
     }
 }

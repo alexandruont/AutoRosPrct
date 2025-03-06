@@ -10,6 +10,6 @@ int main(){
 	setLocalPort(8000);
 	initNetwork();
 	bool continueLoop = true;
-	
+
 	std::cin.get();
 }
