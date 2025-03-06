@@ -1,6 +1,6 @@
 {
-    "name": "socketio",
-    "version": "0.0.1",
+    "name": "WebApp",
+    "version": "1.0.1",
     "description": "WebContent for Project",
     "type": "commonjs",
     "dependencies": {
