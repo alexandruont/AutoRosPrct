@@ -11,7 +11,7 @@
 
       body { 
         margin: 0; 
-        padding-bottom: 3rem; 
+        padding-bottom: 1rem; 
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
         display: flex; 
         flex-direction: column; 
@@ -22,7 +22,7 @@
         display: flex; 
         justify-content: space-between; 
         width: 100%; 
-        padding: 10px; 
+        padding: 5px; 
         height: auto;
       }
 
@@ -44,9 +44,9 @@
       }
 
       .controls-container, .arm-controls-container { 
-        width: 50%; 
+        width: 48%; 
         background: rgba(255, 255, 255, 0.5);
-        padding: 10px; 
+        padding: 5px; 
         border-radius: 10px; 
         display: flex; 
         flex-direction: column; 
@@ -57,7 +57,7 @@
         display: grid; 
         grid-template-columns: repeat(5, 80px); 
         grid-template-rows: repeat(3, 80px); 
-        gap: 10px; 
+        gap: 5px; 
         justify-items: center; 
         align-items: center; 
       }
@@ -73,12 +73,17 @@
         font-size: 1.2rem; 
         display: flex; 
         align-items: center; 
-        justify-content: center; 
+        justify-content: center;
+      }
+
+      @keyframes lightUP {
+        0% { background: #5fd78b; }
+        100% { background: rgba(0, 26, 255, 0.48); }
       }
 
       #controls > button:hover { 
-        background: rgba(0, 26, 255, 0.48); 
         cursor: pointer; 
+        animation: lightUP 0.6s infinite alternate;
       }
 
       #rotate-left { grid-column: 1; grid-row: 1; }
@@ -101,13 +106,32 @@
         color: #333; 
       }
 
-      .slider-container input[type="range"] { width: 80%; }
+      .slider-container input[type="range"] {
+        width: 60%; 
+        margin-right: 3px;
+      }
 
       .slider-container .value-display { 
         font-size: 0.8rem; 
         color: #333; 
         width: 20%; 
-        text-align: right; 
+        text-align: center;
+        margin-left: 3px;
+      }
+
+      .slider-container .reset-button {
+        background: #5fd78b;
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-left: 3px;
+      }
+
+      .slider-container .reset-button:hover {
+        animation: lightUP 0.5s infinite alternate;
       }
 
       .notification {
@@ -138,7 +162,7 @@
       }
 
       .hamburger-button:hover {
-        background-color: rgba(0, 26, 255, 0.48);
+        animation: lightUP 0.5s infinite alternate;
       }
 
       .toolbar {
@@ -167,7 +191,7 @@
       }
 
       .toolbar button:hover {
-        background-color: rgba(0, 26, 255, 0.48);
+        animation: lightUP 0.5s infinite alternate;
       }
 
     </style>
@@ -195,31 +219,37 @@
           <label for="slider1">Joint 1</label>
           <div style="display: flex; align-items: center;">
             <input type="range" id="slider1" min="0" max="360" value="0" oninput="updateValue('slider1')">
+            <button class="reset-button" onclick="resetSlider('slider1')">Reset</button>
             <span class="value-display" id="value1">0</span>
           </div>
           <label for="slider2">Joint 2</label>
           <div style="display: flex; align-items: center;">
             <input type="range" id="slider2" min="0" max="360" value="0" oninput="updateValue('slider2')">
+            <button class="reset-button" onclick="resetSlider('slider2')">Reset</button>
             <span class="value-display" id="value2">0</span>
           </div>
           <label for="slider3">Joint 3</label>
           <div style="display: flex; align-items: center;">
             <input type="range" id="slider3" min="0" max="360" value="0" oninput="updateValue('slider3')">
+            <button class="reset-button" onclick="resetSlider('slider3')">Reset</button>
             <span class="value-display" id="value3">0</span>
           </div>
           <label for="slider4">Joint 4</label>
           <div style="display: flex; align-items: center;">
             <input type="range" id="slider4" min="0" max="360" value="0" oninput="updateValue('slider4')">
+            <button class="reset-button" onclick="resetSlider('slider4')">Reset</button>
             <span class="value-display" id="value4">0</span>
           </div>
           <label for="slider5">Joint 5</label>
           <div style="display: flex; align-items: center;">
             <input type="range" id="slider5" min="0" max="360" value="0" oninput="updateValue('slider5')">
+            <button class="reset-button" onclick="resetSlider('slider5')">Reset</button>
             <span class="value-display" id="value5">0</span>
           </div>
           <label for="slider6">Joint 6</label>
           <div style="display: flex; align-items: center;">
             <input type="range" id="slider6" min="0" max="360" value="0" oninput="updateValue('slider6')">
+            <button class="reset-button" onclick="resetSlider('slider6')">Reset</button>
             <span class="value-display" id="value6">0</span>
           </div>
         </div>
@@ -338,6 +368,13 @@
           const slider = document.getElementById(sliderId);
           const valueDisplay = document.getElementById('value' + sliderId.slice(-1));
           valueDisplay.textContent = slider.value;
+        }
+
+        function resetSlider(sliderId) {
+          const slider = document.getElementById(sliderId);
+          slider.value = 0;
+          updateValue(sliderId);
+          socket.emit('arm control', { joint: parseInt(sliderId.slice(-1)), angle: 0 });
         }
     </script>
   </body>
