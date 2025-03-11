@@ -8,7 +8,6 @@ namespace DataTypes
     {
         Get = 0, // Get any kind of information
         Post = 1, // Post some information. Used for file like data. Mainly used by the robot
-
         Set = 2, // Set is for updating the arm position and robot speed
         Specs = 3 // Sends a request for robot specifications(like number of cameras)
     }

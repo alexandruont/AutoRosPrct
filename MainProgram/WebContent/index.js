@@ -29,7 +29,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 // TCP client to connect to the TCP server
 const tcpClient = new net.Socket();
 tcpClient.connect(8000, '192.168.80.68', () => {
-  console.log('Connected to TCP server');
+    console.log('Connected to TCP server');
+    // Create a buffer to hold the 4-byte integer
+    const buffer = Buffer.alloc(4);
+    const intValue = 1; // The integer value to send
+    buffer.writeInt32BE(intValue, 0); // Write the integer to the buffer in big-endian format
+
+    // Send the buffer to the server
+    tcpClient.write(buffer);
 });
 
 tcpClient.on('data', (data) => {
@@ -54,12 +61,12 @@ io.on('connection', (socket) => {
 
   socket.on('robot control', (direction) => {
     console.log(`User pressed ${direction}`);
-    tcpClient.write(direction);
+      tcpClient.write(`User pressed ${direction}\n`);
   });
 
   socket.on('arm control', (data) => {
     console.log(`Arm control command received: Joint ${data.joint}, Angle ${data.angle}`);
-    tcpClient.write(`arm ${data.joint} ${data.angle}`);
+    tcpClient.write(`arm ${data.joint} ${data.angle}\n`);
   });
 });
 

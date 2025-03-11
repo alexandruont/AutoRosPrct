@@ -4,30 +4,34 @@ using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
+using TCPIPServer;
 
 namespace MainProgram.src
 {
-    class RobotController
+    public class RobotController
     {
         public string _ip;
         private TcpClient _tcpClient;
         private NetworkStream _stream;
         private Thread _thread;
+        private RobotsHandler _owner;
         private bool _running = true;
 
         private int _cameraCount = 0;
         private int _armJointsCount = 6;
         private List<CameraImage> _cameraImages = new List<CameraImage>();
 
-        public RobotController(TcpClient mClient, string ip) {
+        public RobotController(TcpClient mClient, string ip, RobotsHandler owner) {
             _ip = ip;
             _tcpClient = mClient;
+            _owner = owner;
             _thread = new Thread(new ThreadStart(HandleRequests));
             _thread.Start();
             _stream = _tcpClient.GetStream();
         }
 
-        private void HandleRequests(){
+        private void HandleRequests()
+        {
             byte[] headerStream = new byte[Marshal.SizeOf(typeof(Header))];
             byte[] sepByte = new byte[sizeof(int)];
             try
@@ -58,10 +62,22 @@ namespace MainProgram.src
                     }
                 }
             }
-            catch (Exception e){
+            catch (Exception e)
+            {
                 Console.WriteLine(e.ToString());
             }
+            finally
+            {
+                HandleDisconnection();
+            }
             _tcpClient.Close();
+        }
+
+        private void HandleDisconnection()
+        {
+            _running = false;
+            _owner._robotControllers.Remove(_ip);
+            Console.WriteLine($"RobotController with IP {_ip} has been removed from the list.");
         }
 
         public void sendSetRequest(double forward, double right)
@@ -149,7 +165,7 @@ namespace MainProgram.src
             }
         }
 
-        public Header ByteArrayToStruct(byte[] bytes)
+        Header ByteArrayToStruct(byte[] bytes)
         {
             if (bytes.Length != Marshal.SizeOf(typeof(Header)))
             {
@@ -164,7 +180,7 @@ namespace MainProgram.src
             return header;
         }
 
-        public byte[] StructToByteArray(Header header)
+        byte[] StructToByteArray(Header header)
         {
             byte[] bytes = new byte[Marshal.SizeOf(typeof(Header))];
             Buffer.BlockCopy(BitConverter.GetBytes((int)header.reqType), 0, bytes, 0, sizeof(int));

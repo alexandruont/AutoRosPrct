@@ -13,23 +13,41 @@ namespace TCPIPServer
     public class RobotsHandler
     {
         private TcpListener _listener;
-        private static Dictionary<string, RobotController> _robotControllers = new Dictionary<string, RobotController>();
+        public Dictionary<string, RobotController> _robotControllers = new Dictionary<string, RobotController>();
+        public Dictionary<string, ClientController> _clientController = new Dictionary<string, ClientController>();
 
         public RobotsHandler(int port)
         {
             _listener = new TcpListener(IPAddress.Any, port);
         }
 
-        public async Task StartAsync() // Start server si listen pentru conexiuni
+        public async Task StartAsync() // Start server and listen for connexions
         {
             _listener.Start();
             Console.WriteLine("Server started. Waiting for connections...");
             while (true)
             {
-                var client = await _listener.AcceptTcpClientAsync(); // Asteapta conexiuni
-                Console.WriteLine("Client connected.");
+                var client = await _listener.AcceptTcpClientAsync(); // Accept Connections
+                int clientTypeIndex;
+                byte[] bytes = new byte[sizeof(int)];
+                client.GetStream().Read(bytes);
+                clientTypeIndex = BitConverter.ToInt32(bytes, 0);
+
                 string ipAddress = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
-                _robotControllers[ipAddress] = new RobotController(client, ipAddress);
+                switch (clientTypeIndex)
+                {
+                    case 0:
+                        Console.WriteLine($"Robot connected with IP: {ipAddress}");
+                        _robotControllers.Add(ipAddress, new RobotController(client, ipAddress, this));
+                        break;
+                    case 1:
+                        Console.WriteLine($"Client Connected with IP: {ipAddress}");
+                        _clientController.Add(ipAddress, new ClientController(client, ipAddress));
+                        break;
+                    default:
+                        Console.WriteLine("Unkown user type");
+                        break;
+                }
             }
         }
 
