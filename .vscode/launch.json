@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/ontalexandru/Desktop/ProiectWebRoboti/AutoRosPrct",
-      "program": "/Users/ontalexandru/Desktop/ProiectWebRoboti/AutoRosPrct/build/Debug/outDebug"
+      "cwd": "/Users/ontalexandru/Desktop/ProiectWebRoboti/AutoRosPrct/RosX3System",
+      "program": "/Users/ontalexandru/Desktop/ProiectWebRoboti/AutoRosPrct/RosX3System/build/Debug/outDebug"
     }
   ]
 }
