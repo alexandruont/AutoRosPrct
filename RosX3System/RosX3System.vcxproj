@@ -150,7 +150,9 @@
     <ClInclude Include="src\Networking\tcpClient\file_descriptor.h" />
     <ClInclude Include="src\Networking\tcpClient\pipe_ret_t.h" />
     <ClInclude Include="src\Networking\tcpClient\tcp_client.h" />
+    <ClInclude Include="src\vendor\AESBuffer.h" />
     <ClInclude Include="src\vendor\concurrent_buffers.h" />
+    <ClInclude Include="src\vendor\shared_allocation.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />

@@ -5,20 +5,10 @@ TcpClient client;
 Task currentTask;
 size_t currentLoaded = 0;
 
-SPSCBuffer<Task, 50> taskBuffer;
+RDA::AESBuffer streamBuffer(1024);
 void onIncomingMsg(const char* msg, size_t size);
 void onDisconnection(const pipe_ret_t& ret);
-
-void getImageFromCamera(std::vector<uint8_t>& buffer) {
-    // Simulate an image of 640x480 with 3 channels (RGB)
-    const int width = 640;
-    const int height = 480;
-    const int channels = 3;
-    const int imageSize = width * height * channels;
-    buffer.resize(imageSize);
-    // Fill the buffer with dummy data (e.g., all pixels set to 255)
-    std::fill(buffer.begin(), buffer.end(), 255);
-}
+void sendSpecs();
 
 void initNetwork() {
     currentTask.type = TaskType::NULL_TASK;
@@ -42,14 +32,7 @@ void initNetwork() {
             std::cout << "Retrying to connect...\n";
         }
     };
-    std::vector<uint8_t> imageBuffer;
-	getImageFromCamera(imageBuffer);
-    Task resultTask;
-	resultTask.type = TaskType::POST;
-	resultTask.infoType = InfoType::CAMERA_1;
-	resultTask.data.data = reinterpret_cast<char*>(imageBuffer.data());
-	resultTask.data.size = imageBuffer.size();
-	sendTask(resultTask);
+    sendSpecs();
 }
 
 void closeNetwork() {
@@ -66,49 +49,25 @@ void sendTextMessage(std::string& message) {
     client.sendMsg(message.c_str(), message.size());
 }
 
-void sendTask(const Task& task) {;
-    client.sendMsg(task.data.data, task.data.size);
+void sendTask(const Task& task) {
+    Request req(task);
+    client.sendMsg(reinterpret_cast<char*>(&req), sizeof(Request));
+    client.sendMsg(reinterpret_cast<char*>(task.data.data), task.data.size);
+}
+
+void sendSpecs(){
+    Request specReq;
+    specReq.type = TaskType::Specs;
+    specReq.infoType = InfoType::None;
+    specReq.size = 0;
+    client.sendMsg(reinterpret_cast<char*>(&specReq), sizeof(Request));
+    SpecStruct st = SpecStruct();
+    client.sendMsg(reinterpret_cast<char*>(&st), sizeof(SpecStruct));
 }
 
 void onIncomingMsg(const char* msg, size_t size) {
-    size_t offset = sizeof(Request);
-    if(currentTask.type != TaskType::NULL_TASK){
-        size_t remainder = currentTask.data.size - currentLoaded;
-        if (remainder > size){
-            memcpy(currentTask.data.data, msg, size);
-            currentLoaded += size;
-            return;
-        }
-        else{
-            memcpy(currentTask.data.data, msg, remainder);
-            offset += remainder;
-            taskBuffer.push(currentTask);
-            currentLoaded = 0;
-            currentTask.type = TaskType::NULL_TASK;
-        }
-        size = size - remainder;
-    }
-    if (size < sizeof(Request)) {
-        return;
-    }
-    // Extract the header
-    Request header;
-    std::memcpy(&header, msg, offset);
-    currentTask.type = header.type;
-    currentTask.infoType = header.infoType;
-    currentTask.data.size = header.size;
-    currentTask.data.data = new char[header.size];
-
-    size_t remainedBody = size - offset;
-    memcpy(currentTask.data.data, msg + offset, remainedBody);
-    if (header.size > remainedBody){
-        currentLoaded = remainedBody;
-    } else{
-        taskBuffer.push(currentTask);
-        currentTask.type = TaskType::NULL_TASK;
-        currentLoaded = 0;
-    }
-    
+    std::cout<< "Incoming bytes: " << size << std::endl;
+    streamBuffer.write(msg, size);
 }
 
 // observer callback. will be called when server disconnects

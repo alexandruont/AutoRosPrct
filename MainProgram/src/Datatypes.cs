@@ -18,7 +18,7 @@ namespace DataTypes
         None = 0,
         Camera = 1,
         Arm = 2,
-        Speed = 3,
+        Movement = 3,
         ImageSize = 4
     }
 

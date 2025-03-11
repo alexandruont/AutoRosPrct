@@ -7,6 +7,9 @@ static int port = 8000;
 static bool isServer = false;
 static bool closeProgram = false;
 
+int camera1Size[2];
+int camera2Size[2];
+
 std::string getLocalIP() {
 	return localIP;
 }

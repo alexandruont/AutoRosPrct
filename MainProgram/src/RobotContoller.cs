@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Numerics;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 
 namespace MainProgram.src
@@ -28,39 +29,55 @@ namespace MainProgram.src
 
         private void HandleRequests(){
             byte[] headerStream = new byte[Marshal.SizeOf(typeof(Header))];
-            while (_running){
-                Console.WriteLine(_stream.Read(headerStream, 0, Marshal.SizeOf(typeof(Header))));
-                Header reqStart = ByteArrayToStruct(headerStream);
-                reqStart.print();
-                switch(reqStart.reqType){
-                    case ReqType.Get:
-                        handleGetRequest(reqStart);
-                        break;
-                    case ReqType.Set:
-                        handleSetRequest(reqStart);
-                        break;
-                    case ReqType.Post:
-                        handlePostRequest(reqStart);
-                        break;
-                    case ReqType.Specs:
-                        handleSpecsRequest(reqStart);
-                        break;
-                    default:
-                        Console.WriteLine("Unable to identify Request type");
-                        reqStart.print();
-                        break;
+            byte[] sepByte = new byte[sizeof(int)];
+            try
+            {
+                while (_running)
+                {
+                    Console.WriteLine(_stream.Read(headerStream, 0, Marshal.SizeOf(typeof(Header))));
+                    Header reqStart = ByteArrayToStruct(headerStream);
+                    reqStart.print();
+                    switch (reqStart.reqType)
+                    {
+                        case ReqType.Get:
+                            handleGetRequest(reqStart);
+                            break;
+                        case ReqType.Set:
+                            handleSetRequest(reqStart);
+                            break;
+                        case ReqType.Post:
+                            handlePostRequest(reqStart);
+                            break;
+                        case ReqType.Specs:
+                            handleSpecsRequest(reqStart);
+                            break;
+                        default:
+                            Console.WriteLine("Unable to identify Request type");
+                            reqStart.print();
+                            break;
+                    }
                 }
-                Header sendReq;
-                sendReq.reqType = ReqType.Get;
-                sendReq.infoType = InfoType.Camera;
-                sendReq.size = 0;
-
-                byte[] headerBytes = StructToByteArray(sendReq);
-                _stream.Write(headerBytes, 0, headerBytes.Length);
-                Console.WriteLine("Is it going anywhere?");
-
+            }
+            catch (Exception e){
+                Console.WriteLine(e.ToString());
             }
             _tcpClient.Close();
+        }
+
+        public void sendSetRequest(double forward, double right)
+        {
+            Header header;
+            header.reqType = ReqType.Set;
+            header.infoType = InfoType.Movement;
+            header.size = sizeof(double) * 2;
+            byte[] headerBytes = StructToByteArray(header);
+            byte[] forwardBytes = BitConverter.GetBytes(forward);
+            byte[] rightBytes = BitConverter.GetBytes(right);
+
+            byte[] bytes = new byte[headerBytes.Length + forwardBytes.Length + rightBytes.Length];
+
+
+            _stream.Write(bytes, 0, bytes.Length);
         }
 
         private void handleGetRequest(Header request){
@@ -70,11 +87,17 @@ namespace MainProgram.src
         private void handlePostRequest(Header request){
             switch (request.infoType) {
                 case InfoType.Camera:
-                    byte[] buffer = new byte[Marshal.SizeOf(typeof(int))];
-                    _stream.Read(buffer);
+                    byte[] buffer = new byte[sizeof(int)];
+                    _stream.Read(buffer, 0, sizeof(int));
                     int index = BitConverter.ToInt32(buffer, 0);
-                    _stream.Read(_cameraImages[index].imageData, 0, _cameraImages[index].width * _cameraImages[index].height);
-                    Console.WriteLine("Working");
+                    Console.WriteLine(index.ToString());
+
+                    int totalBytesToRead = _cameraImages[index].width * _cameraImages[index].height * 3;
+                    int bytesRead = 0;
+                    while (bytesRead < totalBytesToRead){
+                        bytesRead += _stream.Read(_cameraImages[index].imageData, bytesRead, totalBytesToRead - bytesRead);
+                        Console.WriteLine($"Read-ed : {bytesRead.ToString()} out of {totalBytesToRead}");
+                    }
                     break;
                 case InfoType.Arm:
                     // Handle arm control
@@ -103,18 +126,15 @@ namespace MainProgram.src
             byte[] buffer = new byte[sizeof(int) * 2];
             byte[] intBuffer = new byte[sizeof(int)];
             _stream.Read(intBuffer, 0, sizeof(int));
-            int r = BitConverter.ToInt32(buffer, 0);
-            Console.WriteLine($"Byte-ul intermediar: {r}");
-            _stream.Read(intBuffer, 0, sizeof(int));
             _cameraCount = BitConverter.ToInt32(intBuffer, 0);
             Console.WriteLine($"IP: {_ip} sent the specs:\n\tNumber of cameras: {_cameraCount}");
             for (int i = 0; i < _cameraCount; i++)
             {
-                Console.WriteLine(_stream.Read(buffer, 0, sizeof(int) * 2));
+                _stream.Read(buffer, 0, sizeof(int) * 2);
                 CameraImage cameraImage;
                 cameraImage.width = BitConverter.ToInt32(buffer, 0);
                 cameraImage.height = BitConverter.ToInt32(buffer, 4);
-                cameraImage.imageData = new byte[cameraImage.width * cameraImage.height];
+                cameraImage.imageData = new byte[cameraImage.width * cameraImage.height * 3];
                 _cameraImages.Add(cameraImage);
                 Console.WriteLine($"\tCamera{i} with sizes: {cameraImage.width}, {cameraImage.height}");
             }

@@ -3,6 +3,11 @@
 
 #include "Framework.h"
 
+#define NUMBER_OF_CAMERAS 2
+#define NUMBER_OF_ARM_JOINTS 6
+
+extern int camera1Size[2];
+extern int camera2Size[2];
 std::string getLocalIP();
 void setLocalIP(const std::string& ip);
 

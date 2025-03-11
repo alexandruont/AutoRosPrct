@@ -3,41 +3,53 @@
 
 #include "Framework.h"
 
-enum TaskType {
-	GET = 0,
-	POST = 1,
-	COMMAND = 2,
-	CLOSE = 3,
-	DEBUG_LOG = 4,
-	NULL_TASK = 5
+enum TaskType{
+    Get = 0, // Get any kind of information
+    Post = 1, // Post some information. Used for file like data. Mainly used by the robot
+    Set = 2, // Set is for updating the arm position and robot speed
+    Specs = 3, // Sends a request for robot specifications(like number of cameras)
+
+	NULL_TASK = 20
 };
 
-enum InfoType {
-	LIDAR = 0,
-	CAMERA_1 = 1,
-	CAMERA_2 = 2,
-	LOCAL_MAP = 3,
-	ARM_STATE = 4,
-	DATA_STREAM = 5,
-	NULL_INFO = 6
+enum InfoType{
+    None = 0,
+    Camera = 1,
+    Arm = 2,
+    Speed = 3,
+    ImageSize = 4
 };
 
 struct ArrayData {
 	char* data = nullptr;
 	size_t size = 0;
 };
-#pragma pack(push, 1)
-struct Request{
-	TaskType type;
-	InfoType infoType;
-	size_t size;
-};
-#pragma pack(pop)
 
 struct Task {
 	TaskType type;
 	InfoType infoType;
 	ArrayData data;
 	void*(*callback);
+};
+#pragma pack(push, 1)
+struct Request{
+	TaskType type;
+	InfoType infoType;
+	uint32_t size;
+	Request() = default;
+	Request(const Task& t){
+		this->type = t.type;
+		this->infoType = t.infoType;
+		this->size = t.data.size;
+	}
+};
+#pragma pack(pop)
+
+
+struct SpecStruct{
+	int numberOfCameras = 2;
+	int camera1[2] = { 256, 256 };
+	int camera2[2] = { 256, 256 };
+	int numberOfJoints = 6;
 };
 #endif // !FRAMEWORK_H
