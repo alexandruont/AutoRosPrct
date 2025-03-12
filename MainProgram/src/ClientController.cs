@@ -18,6 +18,7 @@ namespace MainProgram.src
         private NetworkStream _stream;
         private Thread _thread;
         private bool _running = true;
+        private List<string> _commandLog = new List<string>(); // List to record commands
 
         public ClientController(TcpClient tcpClient, string ip)
         {
@@ -47,6 +48,7 @@ namespace MainProgram.src
                         string message = sb.ToString(0, index);
                         sb.Remove(0, index + sizeof(char));
                         Console.WriteLine("Received: " + message);
+                        HandleMessage(message); // handle the message
                     }
                 }
             }
@@ -65,9 +67,10 @@ namespace MainProgram.src
             try
             {
                 var command = JsonSerializer.Deserialize<Header>(message);
+                RecordCommand(message); // Record the command
                 switch (command.reqType) {
                     case ReqType.Set:
-
+                        // Handle the request
                         break;
                     default:
                         Console.WriteLine("Unhandle client request");
@@ -78,6 +81,11 @@ namespace MainProgram.src
             {
                 Console.WriteLine("Failed to parse message: " + e.Message);
             }
+        }
+        private void RecordCommand(string command)
+        {
+            _commandLog.Add(command);
+            Console.WriteLine("Command recorded: " + command);
         }
     }
 }
