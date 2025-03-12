@@ -29,9 +29,14 @@ namespace TCPIPServer
             {
                 var client = await _listener.AcceptTcpClientAsync(); // Accept Connections
                 int clientTypeIndex;
-                byte[] bytes = new byte[sizeof(int)];
-                client.GetStream().Read(bytes);
-                clientTypeIndex = BitConverter.ToInt32(bytes, 0);
+                NetworkStream stream = client.GetStream();
+
+                byte[] buffer = new byte[4];
+                int bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                // Convert the 4-byte big-endian buffer to an integer
+                clientTypeIndex = BitConverter.ToInt32(buffer.Reverse().ToArray(), 0);
+                Console.WriteLine("Received integer: " + clientTypeIndex);
 
                 string ipAddress = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
                 switch (clientTypeIndex)
@@ -45,7 +50,7 @@ namespace TCPIPServer
                         _clientController.Add(ipAddress, new ClientController(client, ipAddress));
                         break;
                     default:
-                        Console.WriteLine("Unkown user type");
+                        Console.WriteLine($"Unkown user type: {clientTypeIndex}");
                         break;
                 }
             }

@@ -3,11 +3,16 @@
 #include <iostream>
 #include <atomic>
 #include <cstring>
+#include <CommonData.h>
 
 namespace RDA {
     struct AESBuffer {
         AESBuffer(size_t startSize) : _size(startSize), _available(startSize), readI(0), writeI(0) {
             _all = sh_all(startSize);
+        }
+
+        void notifyRead(){
+            cv.notify_all();
         }
 
         void write(const char* buffer, size_t pAmount) {
@@ -46,12 +51,10 @@ namespace RDA {
 
         void read(char* buffer, size_t pAmount) {
             std::unique_lock<std::mutex> lock(mtx);
-            cv.wait(lock, [&] { 
-                size_t available = _size - _available.load(std::memory_order_acquire);
-                std::cout << "We got info: " << available << " >= " << pAmount << '\n';
-                return available >= pAmount; 
-            });
-
+            cv.wait(lock, [&] { return (_size - _available.load(std::memory_order_acquire) >= pAmount) | closeProgram; });
+            if(closeProgram){
+                return;
+            }
             sh_all tAll(_all);
             size_t cA = _available.load(std::memory_order_relaxed);
             char* bf = reinterpret_cast<char*>(_all.getRawPointer());

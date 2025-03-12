@@ -5,7 +5,7 @@
 #include "vendor/AESBuffer.h"
 #define Sleep(x) sleep(x)
 
-void initNetwork();
+bool initNetwork();
 void closeNetwork();
 
 void sendTextMessage(std::string&);

@@ -5,8 +5,7 @@ static std::string serversIP;
 static int port = 8000;
 
 static bool isServer = false;
-static bool closeProgram = false;
-
+std::atomic<bool> closeProgram;
 int camera1Size[2];
 int camera2Size[2];
 
@@ -41,11 +40,6 @@ bool getIsServer() {
 void setServerStatus(bool isServer) {
 	isServer = isServer;
 }
-
-bool programClose() {
-	return closeProgram;
-}
-
 void setProgramClose(bool close) {
 	closeProgram = close;
 }

@@ -10,7 +10,7 @@ void onIncomingMsg(const char* msg, size_t size);
 void onDisconnection(const pipe_ret_t& ret);
 void sendSpecs();
 
-void initNetwork() {
+bool initNetwork() {
     currentTask.type = TaskType::NULL_TASK;
 	client_observer_t observer;
 	observer.wantedIP = getServersIP();
@@ -26,17 +26,24 @@ void initNetwork() {
             std::cout << "Client connected successfully\n";
         }
         else {
+            if(closeProgram.load()){
+                return false;
+            }
             std::cout << "Client failed to connect: " << connectRet.message() << "\n"
                 << "Make sure the server is open and listening\n\n";
             Sleep(2);
             std::cout << "Retrying to connect...\n";
         }
     };
+    int i = 0;
+    client.sendMsg(reinterpret_cast<char*>(&i), sizeof(int));
     sendSpecs();
+    return true;
 }
 
 void closeNetwork() {
     const pipe_ret_t closeResult = client.close();
+    streamBuffer.notifyRead();
     if (!closeResult.isSuccessful()) {
         std::cout << "closing client failed: " << closeResult.message() << "\n";
     }

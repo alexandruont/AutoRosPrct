@@ -8,6 +8,7 @@
 
 extern int camera1Size[2];
 extern int camera2Size[2];
+extern std::atomic<bool> closeProgram;
 std::string getLocalIP();
 void setLocalIP(const std::string& ip);
 
@@ -19,7 +20,6 @@ void setLocalPort(int port);
 
 bool getIsServer();
 void setServerStatus(bool isServer);
-bool programClose();
 void setProgramClose(bool close);
 
 #endif // !COMMONDATA_H

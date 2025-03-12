@@ -28,7 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // TCP client to connect to the TCP server
 const tcpClient = new net.Socket();
-tcpClient.connect(8000, '192.168.80.68', () => {
+tcpClient.connect(8000, '192.168.80.102', () => {
     console.log('Connected to TCP server');
     // Create a buffer to hold the 4-byte integer
     const buffer = Buffer.alloc(4);
@@ -37,6 +37,7 @@ tcpClient.connect(8000, '192.168.80.68', () => {
 
     // Send the buffer to the server
     tcpClient.write(buffer);
+    console.log(buffer);
 });
 
 tcpClient.on('data', (data) => {

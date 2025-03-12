@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="RosX3System.cpp" />
+    <ClCompile Include="src\ChasisController\ChasisHandler.cpp" />
     <ClCompile Include="src\CommonData.cpp" />
     <ClCompile Include="src\Networking\NetworkBase.cpp" />
     <ClCompile Include="src\Networking\tcpClient\client.cpp" />
@@ -139,6 +140,7 @@
     <ClCompile Include="src\Networking\tcpClient\tcp_client.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ChasisController\ChasisHandler.h" />
     <ClInclude Include="src\CommonData.h" />
     <ClInclude Include="src\Datatypes.h" />
     <ClInclude Include="src\Framework.h" />

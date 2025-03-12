@@ -39,6 +39,9 @@
     <ClCompile Include="src\CommonData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ChasisController\ChasisHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Networking\tcpClient\client.h">
@@ -81,6 +84,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\vendor\shared_allocation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ChasisController\ChasisHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
