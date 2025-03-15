@@ -32,6 +32,15 @@ namespace DataTypes
         }
     }
 
+    struct MovementHeader
+    {
+        public ReqType reqType;
+        public InfoType infoType;
+        public Int32 size;
+        public double x;
+        public double y;
+    }
+
     struct CameraImage
     {
         public byte[] imageData;

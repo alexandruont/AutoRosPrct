@@ -1,4 +1,5 @@
 ﻿using DataTypes;
+using System.IO.Pipes;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Numerics;
@@ -15,8 +16,6 @@ namespace MainProgram.src
         private NetworkStream _stream;
         private Thread _thread;
         private RobotsHandler _owner;
-        private bool _running = true;
-
         private int _cameraCount = 0;
         private int _armJointsCount = 6;
         private List<CameraImage> _cameraImages = new List<CameraImage>();
@@ -36,9 +35,12 @@ namespace MainProgram.src
             byte[] sepByte = new byte[sizeof(int)];
             try
             {
-                while (_running)
+                while (RobotsHandler._running)
                 {
-                    Console.WriteLine(_stream.Read(headerStream, 0, Marshal.SizeOf(typeof(Header))));
+                    int amount = _stream.Read(headerStream, 0, Marshal.SizeOf(typeof(Header)));
+                    if (amount == 0){
+                        break;
+                    }
                     Header reqStart = ByteArrayToStruct(headerStream);
                     reqStart.print();
                     switch (reqStart.reqType)
@@ -75,25 +77,35 @@ namespace MainProgram.src
 
         private void HandleDisconnection()
         {
-            _running = false;
+            RobotsHandler._running = false;
             _owner._robotControllers.Remove(_ip);
             Console.WriteLine($"RobotController with IP {_ip} has been removed from the list.");
         }
 
-        public void sendSetRequest(double forward, double right)
+        public void sendArmRequest(int joint, int value){
+            Header header;
+            header.reqType = ReqType.Set;
+            header.infoType = InfoType.Arm;
+            header.size = sizeof(int) * 2;
+            _stream.Write(StructToByteArray(header), 0, Marshal.SizeOf(header));
+            byte[] bytes = new byte[sizeof(int) * 2];
+            Buffer.BlockCopy(BitConverter.GetBytes(joint), 0, bytes, 0, sizeof(int));
+            Buffer.BlockCopy(BitConverter.GetBytes(value), 0, bytes, sizeof(int), sizeof(int));
+            _stream.Write(bytes, 0, sizeof(int) * 2);
+        }
+
+        public void sendMoveRequest(double forward, double right, double turn)
         {
             Header header;
             header.reqType = ReqType.Set;
             header.infoType = InfoType.Movement;
-            header.size = sizeof(double) * 2;
-            byte[] headerBytes = StructToByteArray(header);
-            byte[] forwardBytes = BitConverter.GetBytes(forward);
-            byte[] rightBytes = BitConverter.GetBytes(right);
-
-            byte[] bytes = new byte[headerBytes.Length + forwardBytes.Length + rightBytes.Length];
-
-
-            _stream.Write(bytes, 0, bytes.Length);
+            header.size = sizeof(double) * 3;
+            _stream.Write(StructToByteArray(header), 0, Marshal.SizeOf(header));
+            byte[] bytes = new byte[sizeof(double) * 3];
+            Buffer.BlockCopy(BitConverter.GetBytes(forward), 0, bytes, 0, sizeof(double));
+            Buffer.BlockCopy(BitConverter.GetBytes(right), 0, bytes, sizeof(double), sizeof(double));
+            Buffer.BlockCopy(BitConverter.GetBytes(right), 0, bytes, sizeof(double) * 2, sizeof(double));
+            _stream.Write(bytes, 0, sizeof(double) * 3);
         }
 
         private void handleGetRequest(Header request){

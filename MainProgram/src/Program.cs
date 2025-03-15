@@ -8,7 +8,16 @@ namespace MainProgram.src
         {
             Console.WriteLine("Starting server...");
             RobotsHandler Server = new RobotsHandler(port: 8000);
-            Server.StartAsync().Wait();
+            var tsk = Server.StartAsync();
+            while (true) {
+                string command = Console.ReadLine();
+                if (command == "quit") {
+                    break;
+                }
+            }
+            RobotsHandler._running = false;
+            tsk.Wait();
+            Console.WriteLine("Server Stopped");
         }
     }
 }

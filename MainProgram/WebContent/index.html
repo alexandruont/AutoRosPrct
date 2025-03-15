@@ -149,9 +149,6 @@
       }
 
       .hamburger-button {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
         background-color: #5fd78b;
         border: none;
         color: white;
@@ -165,20 +162,41 @@
         animation: lightUP 0.5s infinite alternate;
       }
 
-      .toolbar {
-        position: fixed;
-        bottom: 70px;
-        left: 20px;
-        background-color: #5fd78b;
-        border: none;
-        color: white;
-        padding: 10px;
-        font-size: 1rem;
-        border-radius: 5px;
-        display: none;
-        flex-direction: column;
-        gap: 10px;
+      .left-menus {
+          position: fixed;
+          bottom: 10px;
+          left: 10px;
+          display: inline-flex;
+          gap: 10px;
+          padding: 10px;
+          border-radius: 5px;
       }
+
+      .toolbar {
+          position: absolute;
+          bottom: 100%; /* Places the menu above the button */
+          background-color: #5fd78b;
+          border: none;
+          color: white;
+          padding: 10px;
+          font-size: 1rem;
+          border-radius: 5px;
+          display: none;
+          flex-direction: column;
+          gap: 10px;
+      }
+
+        .ipRobots {
+            position: absolute;
+            bottom: 100%; /* Places the menu above the button */
+            background-color: #5fd78b;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            border-radius: 5px;
+            display: none;
+            flex-direction: column;
+        }
 
       .toolbar button {
         background-color: #5fd78b;
@@ -260,37 +278,87 @@
       <p>This project allows you to control a robot using the buttons below. The camera feed is displayed above.</p>
       <button onclick="toggleNotification()">Close</button>
     </div>
-    <button class="hamburger-button" onclick="toggleToolbar()">☰</button>
-    <div class="toolbar" id="toolbar">
-      <button onclick="toggleNotification()">Info</button>
-      <button onclick="window.open('https://github.com/alexandruont/AutoRosPrct.git', '_blank')">GitHub</button>
+    <div class="left-menus">
+        <div>
+            <button class="hamburger-button" onclick="toggleToolbar()">☰</button>
+            <div class="toolbar" id="toolbar">
+                <button onclick="toggleNotification()">Info</button>
+                <button onclick="window.open('https://github.com/alexandruont/AutoRosPrct.git', '_blank')">GitHub</button>
+            </div>
+        </div>
+        <div>
+            <button class="hamburger-button" onclick="toggleIpAddreses()">Select a Robot</button>
+            <div class="ipRobots" id="ipRobots">
+                <button class="hamburger-button">192.168.1.1</button>
+                <button class="hamburger-button">192.168.1.1</button>
+                <button class="hamburger-button">192.168.1.1</button>
+                <button class="hamburger-button">192.168.1.1</button>
+            </div>
+        </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io('http://192.168.80.102:8080');
+        const socket = io('http://192.168.56.1:8080');
+        var direction = [0, 0, 0];
 
-        document.getElementById('forward').addEventListener('click', () => {
-            socket.emit('robot control', 'forward');
+        document.getElementById('forward').addEventListener('mousedown', () => {
+            direction[0] += 1;
+            socket.emit('robot control', direction);
         });
 
-        document.getElementById('backward').addEventListener('click', () => {
-            socket.emit('robot control', 'backward');
+        document.getElementById('forward').addEventListener('mouseup', () => {
+            direction[0] -= 1;
+            socket.emit('robot control', direction);
         });
 
-        document.getElementById('left').addEventListener('click', () => {
-            socket.emit('robot control', 'left');
+        document.getElementById('backward').addEventListener('mousedown', () => {
+            direction[0] -= 1;
+            socket.emit('robot control', direction);
         });
 
-        document.getElementById('right').addEventListener('click', () => {
-            socket.emit('robot control', 'right');
+        document.getElementById('backward').addEventListener('mouseup', () => {
+            direction[1] += 1;
+            socket.emit('robot control', direction);
         });
 
-        document.getElementById('rotate-left').addEventListener('click', () => {
-            socket.emit('robot control', 'rotate-left');
+        document.getElementById('left').addEventListener('mousedown', () => {
+            direction[1] -= 1;
+            socket.emit('robot control', direction);
         });
 
-        document.getElementById('rotate-right').addEventListener('click', () => {
-            socket.emit('robot control', 'rotate-right');
+        document.getElementById('left').addEventListener('mouseup', () => {
+            direction[1] += 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('right').addEventListener('mousedown', () => {
+            direction[1] += 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('right').addEventListener('mouseup', () => {
+            direction[1] -= 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('rotate-left').addEventListener('mousedown', () => {
+            direction[2] -= 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('rotate-left').addEventListener('mouseup', () => {
+            direction[2] += 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('rotate-right').addEventListener('mousedown', () => {
+            direction[2] += 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('rotate-right').addEventListener('mouseup', () => {
+            direction[2] -= 1;
+            socket.emit('robot control', direction);
         });
 
         document.getElementById('slider1').addEventListener('input', () => {
@@ -317,6 +385,10 @@
             socket.emit('arm control', { joint: 6, angle: document.getElementById('slider6').value });
         });
 
+        socket.on('IPs', (data) => {
+            console.log(data);
+        })
+
         socket.on('connect', () => {
             console.log('User connected');
         });
@@ -327,7 +399,7 @@
           '/img/dog1.jpg',
           '/img/dog2.jpg',
           '/img/dog3.jpg',
-          '/img/dog4.jpg',
+          '/img/dog4.jpg'
         ];
 
         let currentIndex = 0;
@@ -358,6 +430,16 @@
           } else {
             toolbar.style.display = 'none';
           }
+        }
+
+        function toggleIpAddreses() {
+            const ipRobots = document.getElementById('ipRobots');
+            if (ipRobots.style.display === 'none' || ipRobots.style.display === '') {
+                ipRobots.style.display = 'flex';
+            } else {
+                ipRobots.style.display = 'none';
+                ipRobots.innerHTML = '';
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {

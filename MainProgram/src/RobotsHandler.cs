@@ -12,6 +12,7 @@ namespace TCPIPServer
 {
     public class RobotsHandler
     {
+        public static bool _running = true;
         private TcpListener _listener;
         public Dictionary<string, RobotController> _robotControllers = new Dictionary<string, RobotController>();
         public Dictionary<string, ClientController> _clientController = new Dictionary<string, ClientController>();
@@ -25,7 +26,7 @@ namespace TCPIPServer
         {
             _listener.Start();
             Console.WriteLine("Server started. Waiting for connections...");
-            while (true)
+            while (_running)
             {
                 var client = await _listener.AcceptTcpClientAsync(); // Accept Connections
                 int clientTypeIndex;
@@ -44,10 +45,13 @@ namespace TCPIPServer
                     case 0:
                         Console.WriteLine($"Robot connected with IP: {ipAddress}");
                         _robotControllers.Add(ipAddress, new RobotController(client, ipAddress, this));
+                        foreach(var cl in _clientController.Values){
+                            cl.sendConnectedRobots();
+                        }
                         break;
                     case 1:
                         Console.WriteLine($"Client Connected with IP: {ipAddress}");
-                        _clientController.Add(ipAddress, new ClientController(client, ipAddress));
+                        _clientController.Add(ipAddress, new ClientController(client, ipAddress, this));
                         break;
                     default:
                         Console.WriteLine($"Unkown user type: {clientTypeIndex}");
