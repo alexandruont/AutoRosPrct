@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta charset="utf-8">
+    <title>AutoRos Camera View and Controls</title>
+    <style>
+      * { 
+        box-sizing: border-box; 
+      }
+
+      body { 
+        margin: 0; 
+        padding-bottom: 1rem; 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+      }
+
+      .container { 
+        display: flex; 
+        justify-content: space-between; 
+        width: 100%; 
+        padding: 5px; 
+        height: auto;
+      }
+
+      .camera-view { 
+        width: 100%; 
+        height: 300px; 
+        background-color: #5fd78b; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        margin-bottom: 0; 
+        border: lightgreen 5px solid;
+      }
+
+      .camera-view img { 
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+      }
+
+      .controls-container, .arm-controls-container { 
+        width: 48%; 
+        background: rgba(255, 255, 255, 0.5);
+        padding: 5px; 
+        border-radius: 10px; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+      }
+
+      #controls { 
+        display: grid; 
+        grid-template-columns: repeat(5, 80px); 
+        grid-template-rows: repeat(3, 80px); 
+        gap: 5px; 
+        justify-items: center; 
+        align-items: center; 
+      }
+
+      #controls > button { 
+        background: #5fd78b; 
+        border: none; 
+        width: 80px; 
+        height: 80px; 
+        border-radius: 3px; 
+        outline: none; 
+        color: #fff; 
+        font-size: 1.2rem; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+      }
+
+      @keyframes lightUP {
+        0% { background: #5fd78b; }
+        100% { background: rgba(0, 26, 255, 0.48); }
+      }
+
+      #controls > button:hover { 
+        cursor: pointer; 
+        animation: lightUP 0.6s infinite alternate;
+      }
+
+      #rotate-left { grid-column: 1; grid-row: 1; }
+      #forward { grid-column: 3; grid-row: 1; }
+      #rotate-right { grid-column: 5; grid-row: 1; }
+      #left { grid-column: 2; grid-row: 2; }
+      #empty { grid-column: 3; grid-row: 2; visibility: hidden; }
+      #right { grid-column: 4; grid-row: 2; }
+      #backward { grid-column: 3; grid-row: 3; }
+
+      .slider-container { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 5px; 
+        width: 100%;
+      }
+
+      .slider-container label { 
+        font-size: 0.8rem; 
+        color: #333; 
+      }
+
+      .slider-container input[type="range"] {
+        width: 60%; 
+        margin-right: 3px;
+      }
+
+      .slider-container .value-display { 
+        font-size: 0.8rem; 
+        color: #333; 
+        width: 20%; 
+        text-align: center;
+        margin-left: 3px;
+      }
+
+      .slider-container .reset-button {
+        background: #5fd78b;
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-left: 3px;
+      }
+
+      .slider-container .reset-button:hover {
+        animation: lightUP 0.5s infinite alternate;
+      }
+
+      .notification {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px;
+        border-radius: 5px;
+        display: none;
+        max-width: 90%;
+        text-align: center;
+      }
+
+      .hamburger-button {
+        background-color: #5fd78b;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        font-size: 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .hamburger-button:hover {
+        animation: lightUP 0.5s infinite alternate;
+      }
+
+      .left-menus {
+          position: fixed;
+          bottom: 10px;
+          left: 10px;
+          display: inline-flex;
+          gap: 10px;
+          padding: 10px;
+          border-radius: 5px;
+      }
+
+      .toolbar {
+          position: absolute;
+          bottom: 100%; /* Places the menu above the button */
+          background-color: #5fd78b;
+          border: none;
+          color: white;
+          padding: 10px;
+          font-size: 1rem;
+          border-radius: 5px;
+          display: none;
+          flex-direction: column;
+          gap: 10px;
+      }
+
+        .ipRobots {
+            position: absolute;
+            bottom: 100%; /* Places the menu above the button */
+            background-color: #5fd78b;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            border-radius: 5px;
+            display: none;
+            flex-direction: column;
+        }
+
+      .toolbar button {
+        background-color: #5fd78b;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        font-size: 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .toolbar button:hover {
+        animation: lightUP 0.5s infinite alternate;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="camera-view">
+      <img id="camera" src="/img/pozaRobo1.jpg" alt="Camera Feed">
+    </div>
+    <div class="container">
+      <div class="controls-container">
+        <h2>Robot Controls</h2>
+        <div id="controls">
+          <button id="rotate-left">⟲</button>
+          <button id="left">←</button>
+          <button id="forward">↑</button>
+          <button id="right">→</button>
+          <button id="rotate-right">⟳</button>
+          <button id="empty"></button>
+          <button id="backward">↓</button>
+        </div>
+      </div>
+      <div class="arm-controls-container">
+        <h2>Arm Controls</h2>
+        <div class="slider-container">
+          <label for="slider1">Joint 1</label>
+          <div style="display: flex; align-items: center;">
+            <input type="range" id="slider1" min="0" max="360" value="0" oninput="updateValue('slider1')">
+            <button class="reset-button" onclick="resetSlider('slider1')">Reset</button>
+            <span class="value-display" id="value1">0</span>
+          </div>
+          <label for="slider2">Joint 2</label>
+          <div style="display: flex; align-items: center;">
+            <input type="range" id="slider2" min="0" max="360" value="0" oninput="updateValue('slider2')">
+            <button class="reset-button" onclick="resetSlider('slider2')">Reset</button>
+            <span class="value-display" id="value2">0</span>
+          </div>
+          <label for="slider3">Joint 3</label>
+          <div style="display: flex; align-items: center;">
+            <input type="range" id="slider3" min="0" max="360" value="0" oninput="updateValue('slider3')">
+            <button class="reset-button" onclick="resetSlider('slider3')">Reset</button>
+            <span class="value-display" id="value3">0</span>
+          </div>
+          <label for="slider4">Joint 4</label>
+          <div style="display: flex; align-items: center;">
+            <input type="range" id="slider4" min="0" max="360" value="0" oninput="updateValue('slider4')">
+            <button class="reset-button" onclick="resetSlider('slider4')">Reset</button>
+            <span class="value-display" id="value4">0</span>
+          </div>
+          <label for="slider5">Joint 5</label>
+          <div style="display: flex; align-items: center;">
+            <input type="range" id="slider5" min="0" max="360" value="0" oninput="updateValue('slider5')">
+            <button class="reset-button" onclick="resetSlider('slider5')">Reset</button>
+            <span class="value-display" id="value5">0</span>
+          </div>
+          <label for="slider6">Joint 6</label>
+          <div style="display: flex; align-items: center;">
+            <input type="range" id="slider6" min="0" max="360" value="0" oninput="updateValue('slider6')">
+            <button class="reset-button" onclick="resetSlider('slider6')">Reset</button>
+            <span class="value-display" id="value6">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notification" id="notification">
+      <h1>AutoRos Camera View and Controls</h1>
+      <p>This project allows you to control a robot using the buttons below. The camera feed is displayed above.</p>
+      <button onclick="toggleNotification()">Close</button>
+    </div>
+    <div class="left-menus">
+        <div>
+            <button class="hamburger-button" onclick="toggleToolbar()">☰</button>
+            <div class="toolbar" id="toolbar">
+                <button onclick="toggleNotification()">Info</button>
+                <button onclick="window.open('https://github.com/alexandruont/AutoRosPrct.git', '_blank')">GitHub</button>
+            </div>
+        </div>
+        <div>
+            <button class="hamburger-button" onclick="toggleIpAddreses()">Select a Robot</button>
+            <div class="ipRobots" id="ipRobots">
+                <button class="hamburger-button">192.168.1.1</button>
+                <button class="hamburger-button">192.168.1.1</button>
+                <button class="hamburger-button">192.168.1.1</button>
+                <button class="hamburger-button">192.168.1.1</button>
+            </div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io('http://192.168.56.1:8080');
+        var direction = [0, 0, 0];
+
+        document.getElementById('forward').addEventListener('mousedown', () => {
+            direction[0] += 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('forward').addEventListener('mouseup', () => {
+            direction[0] -= 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('backward').addEventListener('mousedown', () => {
+            direction[0] -= 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('backward').addEventListener('mouseup', () => {
+            direction[1] += 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('left').addEventListener('mousedown', () => {
+            direction[1] -= 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('left').addEventListener('mouseup', () => {
+            direction[1] += 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('right').addEventListener('mousedown', () => {
+            direction[1] += 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('right').addEventListener('mouseup', () => {
+            direction[1] -= 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('rotate-left').addEventListener('mousedown', () => {
+            direction[2] -= 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('rotate-left').addEventListener('mouseup', () => {
+            direction[2] += 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('rotate-right').addEventListener('mousedown', () => {
+            direction[2] += 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('rotate-right').addEventListener('mouseup', () => {
+            direction[2] -= 1;
+            socket.emit('robot control', direction);
+        });
+
+        document.getElementById('slider1').addEventListener('input', () => {
+            socket.emit('arm control', { joint: 1, angle: document.getElementById('slider1').value });
+        });
+
+        document.getElementById('slider2').addEventListener('input', () => {
+            socket.emit('arm control', { joint: 2, angle: document.getElementById('slider2').value });
+        });
+
+        document.getElementById('slider3').addEventListener('input', () => {
+            socket.emit('arm control', { joint: 3, angle: document.getElementById('slider3').value });
+        });
+
+        document.getElementById('slider4').addEventListener('input', () => {
+            socket.emit('arm control', { joint: 4, angle: document.getElementById('slider4').value });
+        });
+
+        document.getElementById('slider5').addEventListener('input', () => {
+            socket.emit('arm control', { joint: 5, angle: document.getElementById('slider5').value });
+        });
+
+        document.getElementById('slider6').addEventListener('input', () => {
+            socket.emit('arm control', { joint: 6, angle: document.getElementById('slider6').value });
+        });
+
+        socket.on('IPs', (data) => {
+            console.log(data);
+        })
+
+        socket.on('connect', () => {
+            console.log('User connected');
+        });
+
+        // Array of image URLs
+        const images = [
+          '/img/pozaRobo1.jpg',
+          '/img/dog1.jpg',
+          '/img/dog2.jpg',
+          '/img/dog3.jpg',
+          '/img/dog4.jpg'
+        ];
+
+        let currentIndex = 0;
+
+        // Function to update the image
+        function updateImage() {
+          const imgElement = document.getElementById('camera');
+          imgElement.src = images[currentIndex];
+          currentIndex = (currentIndex + 1) % images.length;
+        }
+
+        // Update the image every 0.2 seconds
+        setInterval(updateImage, 200);
+
+        function toggleNotification() {
+          const notification = document.getElementById('notification');
+          if (notification.style.display === 'none' || notification.style.display === '') {
+            notification.style.display = 'block';
+          } else {
+            notification.style.display = 'none';
+          }
+        }
+
+        function toggleToolbar() {
+          const toolbar = document.getElementById('toolbar');
+          if (toolbar.style.display === 'none' || toolbar.style.display === '') {
+            toolbar.style.display = 'flex';
+          } else {
+            toolbar.style.display = 'none';
+          }
+        }
+
+        function toggleIpAddreses() {
+            const ipRobots = document.getElementById('ipRobots');
+            if (ipRobots.style.display === 'none' || ipRobots.style.display === '') {
+                ipRobots.style.display = 'flex';
+            } else {
+                ipRobots.style.display = 'none';
+                ipRobots.innerHTML = '';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+          document.getElementById('notification').style.display = 'block';
+        });
+
+        function updateValue(sliderId) {
+          const slider = document.getElementById(sliderId);
+          const valueDisplay = document.getElementById('value' + sliderId.slice(-1));
+          valueDisplay.textContent = slider.value;
+        }
+
+        function resetSlider(sliderId) {
+          const slider = document.getElementById(sliderId);
+          slider.value = 0;
+          updateValue(sliderId);
+          socket.emit('arm control', { joint: parseInt(sliderId.slice(-1)), angle: 0 });
+        }
+    </script>
+  </body>
+</html>

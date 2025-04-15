@@ -1,1 +1,13 @@
+################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/MainProgram/obj
+/MainProgram/WebContent/node_modules
+/RosX3System/x64/Debug
+/TehniciAvansate/TehniciAvansate
+/TehniciAvansate
+/x64/Debug
+/MainProgram/bin
 node_modules/
