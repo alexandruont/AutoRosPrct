@@ -64,7 +64,6 @@ namespace MainProgram.src
 
         private void HandleDisconnection()
         {
-            RobotsHandler._running = false;
             _owner._clientController.Remove(_ip);
             Console.WriteLine($"Client Controller with IP {_ip} has been removed from the list.");
         }
