@@ -17,7 +17,8 @@ enum InfoType{
     Camera = 1,
     Arm = 2,
     Movement = 3,
-    ImageSize = 4
+    ImageSize = 4,
+	Map = 5
 };
 
 struct ArrayData {
@@ -31,6 +32,7 @@ struct Task {
 	ArrayData data;
 	void*(*callback);
 };
+
 #pragma pack(push, 1)
 struct Request{
 	TaskType type;
@@ -44,12 +46,27 @@ struct Request{
 	}
 };
 #pragma pack(pop)
-
-
 struct SpecStruct{
 	int numberOfCameras = 2;
 	int camera1[2] = { 256, 256 };
 	int camera2[2] = { 256, 256 };
 	int numberOfJoints = 6;
 };
+namespace RP{
+	struct vec4{
+		double x, y, z, w;
+		vec4(double value = 0) : x(value),y(value),z(value),w(value) {};
+	};
+	
+	struct vec3{
+		double x, y, z;
+		vec3(double value = 0) : x(value),y(value),z(value) {};
+	};
+	
+	struct vec2{
+		double x, y;
+		vec2(double value = 0) : x(value),y(value) {};
+	};
+}
+
 #endif // !FRAMEWORK_H

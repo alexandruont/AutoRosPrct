@@ -59,7 +59,7 @@ namespace RDA {
             size_t cA = _available.load(std::memory_order_relaxed);
             char* bf = reinterpret_cast<char*>(_all.getRawPointer());
             size_t readC = readI.load(std::memory_order_acquire);
-            cA -= pAmount;
+            cA += pAmount;
             if (pAmount > _size - readC) {
                 memcpy(buffer, bf + readC, _size - readC);
                 buffer += _size - readC;

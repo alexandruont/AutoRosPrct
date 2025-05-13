@@ -28,6 +28,9 @@ namespace TCPIPServer
             Console.WriteLine("Server started. Waiting for connections...");
             while (_running)
             {
+                if (!_listener.Pending()){
+                    Task.Delay(100).Wait(); // Avoid busy waiting
+                }
                 var client = await _listener.AcceptTcpClientAsync(); // Accept Connections
                 int clientTypeIndex;
                 NetworkStream stream = client.GetStream();
@@ -58,6 +61,7 @@ namespace TCPIPServer
                         break;
                 }
             }
+            Stop();
         }
 
         private void Stop()

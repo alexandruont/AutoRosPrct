@@ -1,0 +1,24 @@
+{
+    "autorun": true,
+    "autokill": true,
+    "terminals": [
+        {
+            "name": "Roscore",
+            "command": "bash -c 'screen -dmS shared bash -c \"roscore\"; screen -r shared'",
+            "autorun": true,
+            "autokill": true
+        },
+        {
+            "name": "Bringup Launch",
+            "command": "bash -c 'screen -dmS shared bash -c \"roslaunch ~/ROS/X3plus/yahboomcar_ws/src/yahboomcar_bringup/launch/bringup.launch\"; screen -r shared'",
+            "autorun": true,
+            "autokill": true
+        },
+        {
+            "name": "Python Env Setup",
+            "command": "bash -c 'screen -dmS shared bash -c \"source ~/miniconda3/etc/profile.d/conda.sh && conda activate AI_LP\"; screen -r shared'",
+            "autorun": true,
+            "autokill": true
+        }
+    ]
+}

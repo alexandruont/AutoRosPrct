@@ -1,0 +1,24 @@
+# Chasis only bringup
+roslaunch ~/ROS/X3plus/yahboomcar_ws/src/yahboomcar_bringup/launch/bringup.launch
+
+cd ~/software/library_ws/src/ydlidar_ros_driver/launch && roslaunch G6_G7.launch serial_port:=/dev/ttyUSB2
+
+roslaunch ~/software/library_ws/src/ros_astra_camera/launch/astra.launch
+
+# Important bringup functions
+roslaunch  yahboomcar_nav  laser_bringup.launch            # laser + yahboomcar 
+roslaunch  yahboomcar_nav  laser_usb_bringup.launch        # mono + laser + yahboomcar 
+roslaunch  yahboomcar_nav  laser_astrapro_bringup.launch   # Astra + laser + yahboomcar
+
+roslaunch  yahboomcar_nav  yahboomcar_map.launch  use_rviz:=false  map_type:=gmapping
+roslaunch yahboomcar_nav view_map.launch
+
+/usr/local/bin
+
+# Mapping Functions
+roslaunch yahboomcar_nav rrt_exploration.launch use_rviz:=true
+roslaunch yahboomcar_nav view_rrt_map.launch
+
+# Navigation Functions
+roslaunch yahboomcar_nav yahboomcar_navigation.launch use_rviz:=false map:=rrt_map
+roslaunch yahboomcar_nav view_navigate.launch

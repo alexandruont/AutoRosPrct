@@ -24,15 +24,14 @@ namespace MainProgram.src
             _ip = ip;
             _tcpClient = mClient;
             _owner = owner;
+            _stream = _tcpClient.GetStream();
             _thread = new Thread(new ThreadStart(HandleRequests));
             _thread.Start();
-            _stream = _tcpClient.GetStream();
         }
 
         private void HandleRequests()
         {
             byte[] headerStream = new byte[Marshal.SizeOf(typeof(Header))];
-            byte[] sepByte = new byte[sizeof(int)];
             try
             {
                 while (RobotsHandler._running)

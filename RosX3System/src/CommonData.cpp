@@ -8,6 +8,7 @@ static bool isServer = false;
 std::atomic<bool> closeProgram;
 int camera1Size[2];
 int camera2Size[2];
+std::vector<pid_t> runningProcesses;
 
 std::string getLocalIP() {
 	return localIP;

@@ -8,6 +8,7 @@
 
 extern int camera1Size[2];
 extern int camera2Size[2];
+extern std::vector<pid_t> runningProcesses;
 extern std::atomic<bool> closeProgram;
 std::string getLocalIP();
 void setLocalIP(const std::string& ip);

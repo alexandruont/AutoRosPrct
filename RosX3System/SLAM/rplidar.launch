@@ -1,0 +1,40 @@
+<launch> 
+    <arg name="lidar_type" value="$(env RPLIDAR_TYPE)" doc="lidar_type type [a1,a2,a3,s1,s2]" /> 
+    <arg name="frame_id" default="laser" /> 
+    <arg name="shielding_angle" default="30" /> 
+    <!-- scan filtering node  (daca nu se deschide, trb de sters partea dintre explicatii)-->
+    <node name="scan_filter" pkg="rplidar_ros" type="scan_filter.py" output="screen" respawn="true"> 
+        <param name="shielding_angle" type="double" value="$(arg shielding_angle)" /> 
+    </node>
+<!-- ____________________________________________________________________________________ --> 
+    <node name="rplidarNode" pkg="rplidar_ros" type="rplidarNode" output="screen" respawn="true"> 
+        <param name="serial_port" type="string" value="/dev/rplidar" /> 
+        <param name="serial_baudrate" type="int" value="115200" if="$(eval arg('lidar_type') == 'a1')" /> 
+        <param name="serial_baudrate" type="int" value="115200" if="$(eval arg('lidar_type') == 'a2')" /> 
+        <param name="serial_baudrate" type="int" value="256000" if="$(eval arg('lidar_type') == 'a3')" /> 
+        <param name="serial_baudrate" type="int" value="256000" if="$(eval arg('lidar_type') == 's1')" /> 
+        <param name="serial_baudrate" type="int" value="1000000" if="$(eval arg('lidar_type') == 's2')" /> 
+        <param name="frame_id" type="string" value="$(arg frame_id)" /> 
+        <param name="inverted" type="bool" value="false" /> 
+        <param name="angle_compensate" type="bool" value="true" /> 
+        <param name="scan_mode" type="string" value="Sensitivity" if="$(eval arg('lidar_type') == 'a3')" /> 
+        <param name="scan_mode" type="string" value=" " unless="$(eval arg('lidar_type') == 'a3')" /> 
+        <remap from="scan" to="scan_raw" /> 
+    </node> 
+    <node name="slam_gmapping" pkg="gmapping" type="slam_gmapping" output="screen">
+        <param name="base_frame" type="string" value="base_link" />
+        <param name="odom_frame" type="string" value="odom" />
+        <param name="map_update_interval" type="double" value="5.0" />
+        <param name="maxUrange" type="double" value="10.0" />
+        <param name="minimumScore" type="double" value="200" />
+        <param name="linearUpdate" type="double" value="0.5" />
+        <param name="angularUpdate" type="double" value="0.1" />
+        <param name="particles" type="int" value="30" />
+        <remap from="scan" to="scan_raw" />
+    </node>
+</launch> 
+
+<!-- de modificat rplidarNode in caz ca stergem partea de mai sus
+<remap from="scan" to="scan_raw" />   <!-- 删除 --> 
+<remap from="scan" to="scan" />       <!-- add--> 
+-->

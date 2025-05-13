@@ -31,7 +31,15 @@ bool initNetwork() {
             }
             std::cout << "Client failed to connect: " << connectRet.message() << "\n"
                 << "Make sure the server is open and listening\n\n";
-            Sleep(2);
+            std::cout << "Input the new ip address or input blank for reusing the same ip or use q for quit\n";
+            std::string newIp;
+            std::cin >> newIp;
+            if (newIp == "q") {
+                return false;
+            }
+            if (newIp != "") {
+                setServersIP(newIp);
+            }
             std::cout << "Retrying to connect...\n";
         }
     };

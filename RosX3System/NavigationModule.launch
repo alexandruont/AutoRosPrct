@@ -1,0 +1,34 @@
+<launch>
+    <!-- Astra pro launch part -->
+
+    <arg name="robot_type" value="$(env ROBOT_TYPE)" doc="robot_type [X1,X3,X3plus,R2,X7]"/>
+    <arg name="camera_type" value="$(env CAMERA_TYPE)" doc="camera_type [astrapro,astraplus]"/>
+    <!-- driver module -->
+    <include file="$(find ydlidar_ros_driver)/launch/TG.launch"/>
+    <include file="$(find astra_camera)/launch/astrapro.launch" if="$(eval arg('camera_type') == 'astrapro')"/>
+    <include file="$(find astra_camera)/launch/astraproplus.launch" if="$(eval arg('camera_type') == 'astraplus')"/>
+    <include file="$(find yahboomcar_bringup)/launch/bringup.launch"/>
+    <!-- Lidar coordinate system -->
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser"
+          args="0.0435 5.258E-05 0.11 3.1416 0 0 /base_link /laser 30" if="$(eval arg('robot_type') == 'X3')"/>
+    <node pkg="tf" type="static_transform_publisher" name="laser_link_to_laser"
+          args="0 0 0 6.28 0 0  /laser_link /laser 30" if="$(eval arg('robot_type') == 'X3plus')"/>
+
+      <!-- Navigation launch part -->
+    <!-- 是否打开rviz || Whether to open rviz -->
+    <arg name="use_rviz" default="false"/>
+    <!-- 地图名 || Map name  my_map-->
+    <arg name="map" default="rrt_map"/>
+    <!-- MarkerArray node> -->
+    <node name='send_mark' pkg="yahboomcar_nav" type="send_mark.py"/>
+    <!-- 加载地图 || Load map -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find yahboomcar_nav)/maps/$(arg map).yaml"/>
+    <!-- AMCL自适应蒙特卡洛定位 -->
+    <include file="$(find yahboomcar_nav)/launch/library/amcl.launch"/>
+    <!-- 手机APP节点 -->
+    <include file="$(find yahboomcar_nav)/launch/library/app.launch"/>
+    <!-- 导航核心组件move_base -->
+    <include file="$(find yahboomcar_nav)/launch/library/move_base.launch"/>
+    <!-- RVIZ -->
+    <include file="$(find yahboomcar_nav)/launch/view/view_navigate.launch" if="$(arg use_rviz)"/>
+</launch>

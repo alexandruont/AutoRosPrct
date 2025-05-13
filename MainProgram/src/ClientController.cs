@@ -101,6 +101,10 @@ namespace MainProgram.src
                         case "R_A":
                             sendConnectedRobots();
                             break;
+                        case "GET":
+                            break;
+                        case "POST":
+                            break;
                         default:
                             Console.WriteLine($"Client Controller: Unknown request type: {ids.ToString()}");
                             break;

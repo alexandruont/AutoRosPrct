@@ -1,4 +1,16 @@
-﻿{
-  "type": "move",
-  "move": [ 50, 100 ]
+﻿// This is the first request
+{
+  "type": "GET",
+  "mimetype": "obj",
+  "path": "/test",
+  "body": {}
+}
+// This is the second request
+{
+  "type": "POST",
+  "mimetype": "application/json",
+  "path": "/updates",
+  "body": {
+    "key": "value"
+  }"
 }
