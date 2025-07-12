@@ -16,7 +16,7 @@ A full-stack web interface enabling real-time control and monitoring of a physic
 ## Tech Stack
 
 - **Frontend**: HTML, CSS, JavaScript  
-- **Backend**: Node.js + Express  
+- **Backend**: Node.js + Express, C++
 - **Real-time Communication**: WebSockets via Socket.io, TCP socket to communicate with the robot hardware  
 - **Utilities**: CORS middleware, static file serving, responsive design
 
